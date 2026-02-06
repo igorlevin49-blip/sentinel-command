@@ -58,8 +58,17 @@ function AppRoutes() {
         </>
       )}
 
-      {/* Shared routes available to non-guard, non-client roles */}
-      {role !== 'guard' && role !== 'client' && (
+      {/* Director → Executive Dashboard */}
+      {role === 'director' && (
+        <>
+          <Route path="/executive" element={<ExecutiveDashboard />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/" element={<Navigate to="/executive" replace />} />
+        </>
+      )}
+
+      {/* Shared routes available to operational roles */}
+      {role !== 'guard' && role !== 'client' && role !== 'director' && (
         <>
           <Route path="/objects" element={<Objects />} />
           <Route path="/personnel" element={<Personnel />} />
@@ -68,11 +77,6 @@ function AppRoutes() {
           <Route path="/patrols" element={<Patrols />} />
           <Route path="/analytics" element={<Analytics />} />
         </>
-      )}
-
-      {/* Executive gets only analytics and executive dashboard */}
-      {role === 'org_admin' && (
-        <Route path="/executive" element={<ExecutiveDashboard />} />
       )}
 
       {/* Fallback */}
