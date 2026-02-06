@@ -189,8 +189,8 @@ export default function GuardInterface() {
                 <div key={inc.id} className="flex items-center gap-3 border-b border-border px-4 py-3 last:border-0">
                   <div className={cn(
                     'h-2 w-2 rounded-full shrink-0',
-                    inc.priority === 'critical' ? 'bg-destructive animate-status-pulse' :
-                    inc.priority === 'high' ? 'bg-warning' : 'bg-muted-foreground'
+                    (inc.priority as string) === 'critical' ? 'bg-destructive animate-status-pulse' :
+                    (inc.priority as string) === 'high' ? 'bg-warning' : 'bg-muted-foreground'
                   )} />
                   <div className="flex-1">
                     <p className="text-sm font-medium text-foreground">{inc.title}</p>

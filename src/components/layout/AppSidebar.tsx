@@ -1,35 +1,32 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Building2,
-  Users,
-  AlertTriangle,
-  Clock,
-  Route,
-  BarChart3,
   Shield,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const navItems = [
-  { title: 'Дашборд', path: '/', icon: LayoutDashboard },
-  { title: 'Объекты', path: '/objects', icon: Building2 },
-  { title: 'Персонал', path: '/personnel', icon: Users },
-  { title: 'Инциденты', path: '/incidents', icon: AlertTriangle },
-  { title: 'Смены', path: '/shifts', icon: Clock },
-  { title: 'Обходы', path: '/patrols', icon: Route },
-  { title: 'Аналитика', path: '/analytics', icon: BarChart3 },
-];
+import { useRole } from '@/contexts/RoleContext';
+import { roleNavItems, roleLabels } from '@/config/role-navigation';
+import type { UserRole } from '@/types/soms';
 
 interface AppSidebarProps {
   collapsed: boolean;
   onToggle: () => void;
 }
 
+const roleBadgeColors: Record<UserRole, string> = {
+  super_admin: 'bg-destructive/20 text-destructive',
+  org_admin: 'bg-primary/20 text-primary',
+  dispatcher: 'bg-warning/20 text-warning',
+  chief: 'bg-primary/20 text-primary',
+  guard: 'bg-success/20 text-success',
+  client: 'bg-muted text-muted-foreground',
+};
+
 export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
   const location = useLocation();
+  const { role } = useRole();
+  const navItems = roleNavItems[role];
 
   return (
     <aside
@@ -48,6 +45,18 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
           </div>
         )}
       </div>
+
+      {/* Role indicator */}
+      {!collapsed && (
+        <div className="border-b border-sidebar-border px-4 py-2.5">
+          <span className={cn(
+            'inline-block rounded-md px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider',
+            roleBadgeColors[role]
+          )}>
+            {roleLabels[role]}
+          </span>
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4 scrollbar-thin">
