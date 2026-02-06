@@ -1,0 +1,184 @@
+import { useState } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Badge } from '@/components/ui/badge';
+import { mockIncidents } from '@/data/mock-data';
+import { AlertTriangle, Search, Clock, User } from 'lucide-react';
+import type { IncidentStatus, IncidentType } from '@/types/soms';
+
+const statusLabels: Record<IncidentStatus, string> = {
+  created: 'Создан',
+  accepted: 'Принят',
+  in_progress: 'В работе',
+  resolved: 'Решён',
+  closed: 'Закрыт',
+};
+
+const statusVariant: Record<IncidentStatus, 'default' | 'warning' | 'destructive' | 'success' | 'secondary'> = {
+  created: 'default',
+  accepted: 'warning',
+  in_progress: 'destructive',
+  resolved: 'success',
+  closed: 'secondary',
+};
+
+const typeLabels: Record<IncidentType, string> = {
+  alarm: 'Тревога',
+  violation: 'Нарушение',
+  event: 'Событие',
+};
+
+const typeIcons: Record<IncidentType, string> = {
+  alarm: '🔴',
+  violation: '🟡',
+  event: '🔵',
+};
+
+const priorityLabels: Record<string, string> = {
+  critical: 'Критический',
+  high: 'Высокий',
+  medium: 'Средний',
+  low: 'Низкий',
+};
+
+const priorityVariant: Record<string, 'destructive' | 'warning' | 'default' | 'secondary'> = {
+  critical: 'destructive',
+  high: 'warning',
+  medium: 'default',
+  low: 'secondary',
+};
+
+export default function Incidents() {
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<IncidentStatus | 'all'>('all');
+
+  const filtered = mockIncidents.filter((inc) => {
+    const matchesSearch =
+      inc.title.toLowerCase().includes(search.toLowerCase()) ||
+      inc.id.toLowerCase().includes(search.toLowerCase()) ||
+      inc.objectName.toLowerCase().includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || inc.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const statusOptions: { value: IncidentStatus | 'all'; label: string }[] = [
+    { value: 'all', label: 'Все' },
+    { value: 'created', label: 'Созданные' },
+    { value: 'accepted', label: 'Принятые' },
+    { value: 'in_progress', label: 'В работе' },
+    { value: 'resolved', label: 'Решённые' },
+    { value: 'closed', label: 'Закрытые' },
+  ];
+
+  return (
+    <AppLayout title="Инциденты">
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder="Поиск по инцидентам..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="h-9 w-72 rounded-md border border-border bg-muted pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {statusOptions.map((opt) => (
+              <button
+                key={opt.value}
+                onClick={() => setStatusFilter(opt.value)}
+                className={`rounded-md px-2.5 py-1 text-xs font-medium transition-colors ${
+                  statusFilter === opt.value
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border bg-muted/50">
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">ID</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Тип</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Описание</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Объект</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Приоритет</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Статус</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Время</th>
+                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Назначен</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filtered.map((incident, i) => (
+                <tr
+                  key={incident.id}
+                  className="transition-colors hover:bg-muted/30 animate-fade-in"
+                  style={{ animationDelay: `${i * 30}ms` }}
+                >
+                  <td className="whitespace-nowrap px-5 py-3.5">
+                    <span className="font-mono text-xs font-medium text-foreground">{incident.id}</span>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-3.5">
+                    <span className="text-sm">
+                      {typeIcons[incident.type]} {typeLabels[incident.type]}
+                    </span>
+                  </td>
+                  <td className="max-w-xs px-5 py-3.5">
+                    <p className="text-sm font-medium text-foreground truncate">{incident.title}</p>
+                    <p className="text-xs text-muted-foreground truncate">{incident.description}</p>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-3.5 text-sm text-muted-foreground">
+                    {incident.objectName}
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-3.5">
+                    <Badge variant={priorityVariant[incident.priority]} className="text-[10px] px-1.5 py-0">
+                      {priorityLabels[incident.priority]}
+                    </Badge>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-3.5">
+                    <Badge variant={statusVariant[incident.status]} className="text-[10px] px-1.5 py-0">
+                      {statusLabels[incident.status]}
+                    </Badge>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-3.5">
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span className="font-mono">
+                        {new Date(incident.createdAt).toLocaleString('ru-RU', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-5 py-3.5">
+                    {incident.assignedTo ? (
+                      <div className="flex items-center gap-1.5 text-sm text-foreground">
+                        <User className="h-3.5 w-3.5 text-muted-foreground" />
+                        {incident.assignedTo}
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </AppLayout>
+  );
+}
