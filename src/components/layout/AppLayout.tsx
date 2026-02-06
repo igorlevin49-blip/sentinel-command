@@ -11,7 +11,7 @@ interface AppLayoutProps {
   title?: string;
 }
 
-const availableRoles: UserRole[] = ['dispatcher', 'org_admin', 'chief', 'guard', 'client'];
+const availableRoles: UserRole[] = ['dispatcher', 'org_admin', 'chief', 'director', 'guard', 'client'];
 
 export function AppLayout({ children, title }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);

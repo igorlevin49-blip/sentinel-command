@@ -10,6 +10,7 @@ import {
   FileText,
   Shield,
   MapPin,
+  Briefcase,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/soms';
@@ -26,6 +27,7 @@ export const roleDefaultRoute: Record<UserRole, string> = {
   dispatcher: '/',
   org_admin: '/control',
   chief: '/control',
+  director: '/executive',
   guard: '/guard',
   client: '/client',
 };
@@ -69,6 +71,11 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
     { title: 'Отчёты', path: '/analytics', icon: BarChart3 },
   ],
 
+  director: [
+    { title: 'Стратегический', path: '/executive', icon: Briefcase },
+    { title: 'Аналитика', path: '/analytics', icon: BarChart3 },
+  ],
+
   guard: [
     { title: 'Моя смена', path: '/guard', icon: Shield },
     { title: 'Обход', path: '/guard/patrol', icon: MapPin },
@@ -88,6 +95,7 @@ export const roleLabels: Record<UserRole, string> = {
   org_admin: 'Администратор',
   dispatcher: 'Диспетчер',
   chief: 'Нач. охраны',
+  director: 'Директор',
   guard: 'Охранник',
   client: 'Заказчик',
 };

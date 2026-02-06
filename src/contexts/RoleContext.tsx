@@ -15,6 +15,7 @@ const roleProfiles: Record<UserRole, { name: string; title: string }> = {
   chief: { name: 'Козлов А.В.', title: 'Нач. охраны' },
   guard: { name: 'Петров Д.А.', title: 'Охранник' },
   client: { name: 'Смирнов И.П.', title: 'Заказчик' },
+  director: { name: 'Орлов В.М.', title: 'Директор' },
 };
 
 const RoleContext = createContext<RoleContextValue | null>(null);

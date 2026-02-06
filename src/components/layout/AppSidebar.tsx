@@ -19,6 +19,7 @@ const roleBadgeColors: Record<UserRole, string> = {
   org_admin: 'bg-primary/20 text-primary',
   dispatcher: 'bg-warning/20 text-warning',
   chief: 'bg-primary/20 text-primary',
+  director: 'bg-accent/20 text-accent',
   guard: 'bg-success/20 text-success',
   client: 'bg-muted text-muted-foreground',
 };

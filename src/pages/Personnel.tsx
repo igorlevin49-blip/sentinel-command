@@ -10,6 +10,7 @@ const roleLabels: Record<UserRole, string> = {
   org_admin: 'Администратор',
   dispatcher: 'Диспетчер',
   chief: 'Нач. охраны',
+  director: 'Директор',
   guard: 'Охранник',
   client: 'Заказчик',
 };
@@ -19,6 +20,7 @@ const roleVariant: Record<UserRole, 'default' | 'secondary' | 'warning' | 'succe
   org_admin: 'default',
   dispatcher: 'warning',
   chief: 'default',
+  director: 'default',
   guard: 'secondary',
   client: 'secondary',
 };
