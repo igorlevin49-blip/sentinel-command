@@ -1,4 +1,4 @@
-export type UserRole = 'super_admin' | 'org_admin' | 'dispatcher' | 'chief' | 'guard' | 'client';
+export type UserRole = 'super_admin' | 'org_admin' | 'dispatcher' | 'chief' | 'guard' | 'client' | 'director';
 export type OrganizationType = 'agency' | 'internal';
 export type ObjectRiskLevel = 'low' | 'medium' | 'high' | 'critical';
 export type PostType = 'static' | 'checkpoint' | 'mobile';
