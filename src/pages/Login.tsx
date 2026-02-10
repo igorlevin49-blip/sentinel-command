@@ -13,6 +13,18 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (searchParams.get('error') === 'no_role') {
+      toast({
+        variant: 'destructive',
+        title: 'Нет назначенной роли',
+        description: 'Обратитесь к администратору для назначения роли в системе.',
+      });
+    }
+  }, [searchParams, toast]);
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
