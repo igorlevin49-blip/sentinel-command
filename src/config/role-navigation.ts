@@ -14,6 +14,7 @@ import {
   ShieldAlert,
   Settings,
   UserCog,
+  Globe,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/soms';
