@@ -748,14 +748,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_user_org_ids: { Args: { _user_id: string }; Returns: string[] }
+      can_access_object: { Args: { _object_id: string }; Returns: boolean }
+      client_object_ids: { Args: never; Returns: string[] }
+      current_user_id: { Args: never; Returns: string }
+      guard_object_ids: { Args: never; Returns: string[] }
+      guard_personnel_id: { Args: never; Returns: string }
       has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["member_role"]
-          _user_id: string
-        }
+        Args: { _role: Database["public"]["Enums"]["member_role"] }
         Returns: boolean
       }
+      is_super_admin: { Args: never; Returns: boolean }
+      user_org_id: { Args: never; Returns: string }
     }
     Enums: {
       acceptance_action: "accept" | "handover"
