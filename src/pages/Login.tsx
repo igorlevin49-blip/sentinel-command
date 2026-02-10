@@ -25,7 +25,6 @@ export default function Login() {
       });
     }
   }, [searchParams, toast]);
-  const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
