@@ -108,6 +108,15 @@ export function AppLayout({ children, title }: AppLayoutProps) {
                         )}
                       </button>
                     ))}
+                    <div className="border-t border-border mt-1 pt-1">
+                      <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Выйти
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
