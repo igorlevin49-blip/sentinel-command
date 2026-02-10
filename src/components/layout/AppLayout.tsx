@@ -13,6 +13,7 @@ interface AppLayoutProps {
   title?: string;
 }
 
+const IS_DEV = import.meta.env.DEV;
 const availableRoles: UserRole[] = ['dispatcher', 'org_admin', 'chief', 'director', 'guard', 'client'];
 
 export function AppLayout({ children, title }: AppLayoutProps) {
@@ -20,7 +21,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
   const { role, setRole, userName, userTitle } = useRole();
   const { signOut } = useAuth();
   const navigate = useNavigate();
-  const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
     await signOut();
@@ -62,10 +63,10 @@ export function AppLayout({ children, title }: AppLayoutProps) {
               </span>
             </button>
 
-            {/* User + Role Switcher (demo) */}
+            {/* User menu */}
             <div className="relative">
               <button
-                onClick={() => setRoleMenuOpen(!roleMenuOpen)}
+                onClick={() => setMenuOpen(!menuOpen)}
                 className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 transition-colors hover:bg-muted"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
@@ -78,37 +79,42 @@ export function AppLayout({ children, title }: AppLayoutProps) {
                 <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
               </button>
 
-              {/* Role dropdown (demo only) */}
-              {roleMenuOpen && (
+              {menuOpen && (
                 <>
-                  <div className="fixed inset-0 z-40" onClick={() => setRoleMenuOpen(false)} />
+                  <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
                   <div className="absolute right-0 top-full z-50 mt-1 w-56 rounded-lg border border-border bg-popover p-1 shadow-xl">
-                    <div className="px-3 py-2 border-b border-border mb-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Демо: переключение ролей
-                      </p>
-                    </div>
-                    {availableRoles.map((r) => (
-                      <button
-                        key={r}
-                        onClick={() => {
-                          setRole(r);
-                          setRoleMenuOpen(false);
-                        }}
-                        className={cn(
-                          'flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
-                          role === r
-                            ? 'bg-primary/10 text-primary font-medium'
-                            : 'text-foreground hover:bg-muted'
-                        )}
-                      >
-                        {roleLabels[r]}
-                        {role === r && (
-                          <span className="ml-auto text-[10px] text-primary">✓</span>
-                        )}
-                      </button>
-                    ))}
-                    <div className="border-t border-border mt-1 pt-1">
+                    {/* DEV-only role switcher */}
+                    {IS_DEV && (
+                      <>
+                        <div className="px-3 py-2 border-b border-border mb-1">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            DEV: переключение ролей
+                          </p>
+                        </div>
+                        {availableRoles.map((r) => (
+                          <button
+                            key={r}
+                            onClick={() => {
+                              setRole(r);
+                              setMenuOpen(false);
+                            }}
+                            className={cn(
+                              'flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
+                              role === r
+                                ? 'bg-primary/10 text-primary font-medium'
+                                : 'text-foreground hover:bg-muted'
+                            )}
+                          >
+                            {roleLabels[r]}
+                            {role === r && (
+                              <span className="ml-auto text-[10px] text-primary">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </>
+                    )}
+
+                    <div className={cn(IS_DEV && 'border-t border-border mt-1 pt-1')}>
                       <button
                         onClick={handleLogout}
                         className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
