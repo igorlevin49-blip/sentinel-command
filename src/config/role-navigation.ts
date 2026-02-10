@@ -23,11 +23,11 @@ export interface NavItem {
 
 /** Default landing route per role */
 export const roleDefaultRoute: Record<UserRole, string> = {
-  super_admin: '/',
-  dispatcher: '/',
-  org_admin: '/control',
-  chief: '/control',
-  director: '/executive',
+  super_admin: '/ops',
+  dispatcher: '/ops',
+  org_admin: '/admin',
+  chief: '/chief',
+  director: '/exec',
   guard: '/m/guard/home',
   client: '/client',
 };
