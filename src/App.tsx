@@ -8,7 +8,11 @@ import { roleDefaultRoute } from "@/config/role-navigation";
 import Dashboard from "./pages/Dashboard";
 import ControlDashboard from "./pages/ControlDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
-import ClientDashboard from "./pages/ClientDashboard";
+import ClientMyObjects from "./pages/client/ClientMyObjects";
+import ClientAcceptance from "./pages/client/ClientAcceptance";
+import ClientViolations from "./pages/client/ClientViolations";
+import ClientIncidents from "./pages/client/ClientIncidents";
+import ClientSLAReports from "./pages/client/ClientSLAReports";
 import GuardHome from "./pages/guard/GuardHome";
 import GuardShift from "./pages/guard/GuardShift";
 import GuardPatrol from "./pages/guard/GuardPatrol";
@@ -31,15 +35,17 @@ function AppRoutes() {
     <Routes>
       {/* Dispatcher / Super Admin → Ops Dashboard */}
       {(role === 'dispatcher' || role === 'super_admin') && (
-        <Route path="/" element={<Dashboard />} />
+        <Route path="/ops" element={<Dashboard />} />
       )}
 
-      {/* Admin / Chief → Control Dashboard */}
-      {(role === 'org_admin' || role === 'chief') && (
-        <>
-          <Route path="/control" element={<ControlDashboard />} />
-          <Route path="/" element={<Navigate to="/control" replace />} />
-        </>
+      {/* Org Admin → Admin Control Dashboard */}
+      {role === 'org_admin' && (
+        <Route path="/admin" element={<ControlDashboard />} />
+      )}
+
+      {/* Chief of Security → Chief Control Dashboard */}
+      {role === 'chief' && (
+        <Route path="/chief" element={<ControlDashboard />} />
       )}
 
       {/* Guard → Mobile Interface */}
@@ -50,30 +56,29 @@ function AppRoutes() {
           <Route path="/m/guard/patrol" element={<GuardPatrol />} />
           <Route path="/m/guard/incidents" element={<GuardIncidents />} />
           <Route path="/m/guard/profile" element={<GuardProfile />} />
-          <Route path="/" element={<Navigate to="/m/guard/home" replace />} />
         </>
       )}
 
-      {/* Client → Client Dashboard */}
+      {/* Client → Client Portal */}
       {role === 'client' && (
         <>
-          <Route path="/client" element={<ClientDashboard />} />
-          <Route path="/client/incidents" element={<ClientDashboard />} />
-          <Route path="/client/reports" element={<ClientDashboard />} />
-          <Route path="/" element={<Navigate to="/client" replace />} />
+          <Route path="/client" element={<ClientMyObjects />} />
+          <Route path="/client/acceptance" element={<ClientAcceptance />} />
+          <Route path="/client/violations" element={<ClientViolations />} />
+          <Route path="/client/incidents" element={<ClientIncidents />} />
+          <Route path="/client/reports" element={<ClientSLAReports />} />
         </>
       )}
 
       {/* Director → Executive Dashboard */}
       {role === 'director' && (
         <>
-          <Route path="/executive" element={<ExecutiveDashboard />} />
+          <Route path="/exec" element={<ExecutiveDashboard />} />
           <Route path="/analytics" element={<Analytics />} />
-          <Route path="/" element={<Navigate to="/executive" replace />} />
         </>
       )}
 
-      {/* Shared routes available to operational roles */}
+      {/* Shared routes for operational roles */}
       {role !== 'guard' && role !== 'client' && role !== 'director' && (
         <>
           <Route path="/objects" element={<Objects />} />
@@ -85,7 +90,7 @@ function AppRoutes() {
         </>
       )}
 
-      {/* Fallback */}
+      {/* Fallback → redirect to role default */}
       <Route path="*" element={<Navigate to={roleDefaultRoute[role]} replace />} />
     </Routes>
   );
