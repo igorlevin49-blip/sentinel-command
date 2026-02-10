@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
-import { Bell, Search, User, ChevronDown } from 'lucide-react';
+import { Bell, Search, User, ChevronDown, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRole } from '@/contexts/RoleContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { roleLabels } from '@/config/role-navigation';
 import type { UserRole } from '@/types/soms';
 
