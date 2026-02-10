@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ChiefControl from "./pages/ChiefControl";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import ClientMyObjects from "./pages/client/ClientMyObjects";
 import ClientAcceptance from "./pages/client/ClientAcceptance";
@@ -116,8 +117,17 @@ function AppRoutes() {
       {/* Dashboard redirect */}
       <Route path="/dashboard" element={<RequireAuth><RoleGate><DashboardRedirect /></RoleGate></RequireAuth>} />
 
-      {/* Dispatcher / Super Admin → Ops Dashboard */}
-      {(role === 'dispatcher' || role === 'super_admin') && (
+      {/* Super Admin → Platform Dashboard */}
+      {role === 'super_admin' && (
+        <>
+          <Route path="/super-admin" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/orgs" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
+        </>
+      )}
+
+      {/* Dispatcher → Ops Dashboard */}
+      {role === 'dispatcher' && (
         <Route path="/ops" element={<RequireAuth><RoleGate><Dashboard /></RoleGate></RequireAuth>} />
       )}
 
@@ -173,6 +183,7 @@ function AppRoutes() {
           <Route path="/shifts" element={<RequireAuth><RoleGate><Shifts /></RoleGate></RequireAuth>} />
           <Route path="/patrols" element={<RequireAuth><RoleGate><Patrols /></RoleGate></RequireAuth>} />
           <Route path="/analytics" element={<RequireAuth><RoleGate><Analytics /></RoleGate></RequireAuth>} />
+          <Route path="/users" element={<RequireAuth><RoleGate><Personnel /></RoleGate></RequireAuth>} />
         </>
       )}
 
