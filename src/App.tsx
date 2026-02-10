@@ -117,8 +117,17 @@ function AppRoutes() {
       {/* Dashboard redirect */}
       <Route path="/dashboard" element={<RequireAuth><RoleGate><DashboardRedirect /></RoleGate></RequireAuth>} />
 
-      {/* Dispatcher / Super Admin → Ops Dashboard */}
-      {(role === 'dispatcher' || role === 'super_admin') && (
+      {/* Super Admin → Platform Dashboard */}
+      {role === 'super_admin' && (
+        <>
+          <Route path="/super-admin" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/orgs" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
+        </>
+      )}
+
+      {/* Dispatcher → Ops Dashboard */}
+      {role === 'dispatcher' && (
         <Route path="/ops" element={<RequireAuth><RoleGate><Dashboard /></RoleGate></RequireAuth>} />
       )}
 
