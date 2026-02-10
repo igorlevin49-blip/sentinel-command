@@ -12,6 +12,8 @@ import {
   MapPin,
   Briefcase,
   ShieldAlert,
+  Settings,
+  UserCog,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/soms';
@@ -54,21 +56,26 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
     { title: 'Персонал', path: '/personnel', icon: Users },
   ],
 
+  // ORG_ADMIN = full system configurator
   org_admin: [
-    { title: 'Управление', path: '/admin', icon: Gauge },
+    { title: 'Дашборд', path: '/admin', icon: LayoutDashboard },
     { title: 'Объекты', path: '/objects', icon: Building2 },
+    { title: 'Посты', path: '/posts', icon: Settings },
+    { title: 'Маршруты', path: '/routes', icon: Route },
     { title: 'Персонал', path: '/personnel', icon: Users },
     { title: 'Смены', path: '/shifts', icon: Clock },
-    { title: 'Обходы', path: '/patrols', icon: Route },
+    { title: 'Инциденты', path: '/incidents', icon: AlertTriangle },
     { title: 'Отчёты', path: '/analytics', icon: BarChart3 },
+    { title: 'Пользователи', path: '/users', icon: UserCog },
   ],
 
+  // CHIEF = operations quality controller (read-only config, operational control)
   chief: [
     { title: 'Контроль', path: '/chief', icon: Gauge },
-    { title: 'Объекты', path: '/objects', icon: Building2 },
-    { title: 'Персонал', path: '/personnel', icon: Users },
+    { title: 'Нарушения', path: '/chief/violations', icon: ShieldAlert },
     { title: 'Смены', path: '/shifts', icon: Clock },
     { title: 'Обходы', path: '/patrols', icon: Route },
+    { title: 'Инциденты', path: '/incidents', icon: AlertTriangle },
     { title: 'Отчёты', path: '/analytics', icon: BarChart3 },
   ],
 
