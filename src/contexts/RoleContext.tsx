@@ -4,7 +4,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RoleContextValue {
+  /** Effective role (viewAs if set, otherwise actual) */
   role: UserRole;
+  /** Real role from DB — never changes */
+  actualRole: UserRole;
+  /** True when super_admin is viewing as another role */
+  isDemoView: boolean;
+  /** Set viewAs role (super_admin only). Pass null to exit demo. */
+  setViewAsRole: (role: UserRole | null) => void;
+  /** Dev-only override */
   setRole: (role: UserRole) => void;
   userName: string;
   userTitle: string;
@@ -28,7 +36,8 @@ const IS_DEV = import.meta.env.DEV;
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [role, setRoleState] = useState<UserRole>('dispatcher');
+  const [dbRole, setDbRole] = useState<UserRole>('dispatcher');
+  const [viewAsRole, setViewAsRoleState] = useState<UserRole | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
   const [roleError, setRoleError] = useState<string | null>(null);
   const [userName, setUserName] = useState('');
@@ -68,7 +77,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setRoleState(data.role as UserRole);
+      setDbRole(data.role as UserRole);
       setUserName(user!.email ?? '');
       setRoleLoading(false);
     }
@@ -77,22 +86,36 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     return () => { cancelled = true; };
   }, [user]);
 
-  // In dev mode allow manual override
+  const actualRole = dbRole;
+  const isSuperAdmin = actualRole === 'super_admin';
+  const isDemoView = isSuperAdmin && viewAsRole !== null && viewAsRole !== 'super_admin';
+  const effectiveRole = isDemoView ? viewAsRole! : actualRole;
+
+  const setViewAsRole = (r: UserRole | null) => {
+    if (!isSuperAdmin) return;
+    setViewAsRoleState(r);
+  };
+
+  // Dev-only override (legacy)
   const setRole = (r: UserRole) => {
     if (IS_DEV) {
-      setRoleState(r);
+      setDbRole(r);
+      setViewAsRoleState(null);
     }
   };
 
-  const profile = roleProfiles[role];
+  const profile = roleProfiles[effectiveRole];
 
   return (
     <RoleContext.Provider
       value={{
-        role,
+        role: effectiveRole,
+        actualRole,
+        isDemoView,
+        setViewAsRole,
         setRole,
         userName: userName || profile.name,
-        userTitle: profile.title,
+        userTitle: isDemoView ? `DEMO: ${profile.title}` : profile.title,
         roleLoading,
         roleError,
       }}
