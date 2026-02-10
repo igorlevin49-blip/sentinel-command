@@ -11,6 +11,7 @@ import {
   Shield,
   MapPin,
   Briefcase,
+  ShieldAlert,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/soms';
