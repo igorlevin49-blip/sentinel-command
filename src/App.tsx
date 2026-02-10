@@ -2,14 +2,16 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { RoleProvider, useRole } from "@/contexts/RoleContext";
 import { roleDefaultRoute } from "@/config/role-navigation";
+import { useEffect } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import ControlDashboard from "./pages/ControlDashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import ChiefControl from "./pages/ChiefControl";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import ClientMyObjects from "./pages/client/ClientMyObjects";
 import ClientAcceptance from "./pages/client/ClientAcceptance";
@@ -67,6 +69,36 @@ function PublicOnly({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function RoleGate({ children }: { children: React.ReactNode }) {
+  const { roleLoading, roleError } = useRole();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (roleError === 'no_role') {
+      signOut().then(() => navigate('/login?error=no_role', { replace: true }));
+    }
+  }, [roleError, signOut, navigate]);
+
+  if (roleLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (roleError) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 function DashboardRedirect() {
   const { role } = useRole();
   return <Navigate to={roleDefaultRoute[role]} replace />;
@@ -82,62 +114,75 @@ function AppRoutes() {
       <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
 
       {/* Dashboard redirect */}
-      <Route path="/dashboard" element={<RequireAuth><DashboardRedirect /></RequireAuth>} />
+      <Route path="/dashboard" element={<RequireAuth><RoleGate><DashboardRedirect /></RoleGate></RequireAuth>} />
 
       {/* Dispatcher / Super Admin → Ops Dashboard */}
       {(role === 'dispatcher' || role === 'super_admin') && (
-        <Route path="/ops" element={<RequireAuth><Dashboard /></RequireAuth>} />
+        <Route path="/ops" element={<RequireAuth><RoleGate><Dashboard /></RoleGate></RequireAuth>} />
       )}
 
-      {/* Org Admin → Admin Control Dashboard */}
+      {/* Org Admin → Admin Dashboard (full config) */}
       {role === 'org_admin' && (
-        <Route path="/admin" element={<RequireAuth><ControlDashboard /></RequireAuth>} />
+        <Route path="/admin" element={<RequireAuth><RoleGate><AdminDashboard /></RoleGate></RequireAuth>} />
       )}
 
-      {/* Chief of Security → Chief Control Dashboard */}
+      {/* Chief → Operations quality control (read-only config) */}
       {role === 'chief' && (
-        <Route path="/chief" element={<RequireAuth><ControlDashboard /></RequireAuth>} />
+        <>
+          <Route path="/chief" element={<RequireAuth><RoleGate><ChiefControl /></RoleGate></RequireAuth>} />
+          <Route path="/chief/violations" element={<RequireAuth><RoleGate><ChiefControl /></RoleGate></RequireAuth>} />
+        </>
       )}
 
       {/* Guard → Mobile Interface */}
       {role === 'guard' && (
         <>
-          <Route path="/m/guard/home" element={<RequireAuth><GuardHome /></RequireAuth>} />
-          <Route path="/m/guard/shift" element={<RequireAuth><GuardShift /></RequireAuth>} />
-          <Route path="/m/guard/patrol" element={<RequireAuth><GuardPatrol /></RequireAuth>} />
-          <Route path="/m/guard/incidents" element={<RequireAuth><GuardIncidents /></RequireAuth>} />
-          <Route path="/m/guard/profile" element={<RequireAuth><GuardProfile /></RequireAuth>} />
+          <Route path="/m/guard/home" element={<RequireAuth><RoleGate><GuardHome /></RoleGate></RequireAuth>} />
+          <Route path="/m/guard/shift" element={<RequireAuth><RoleGate><GuardShift /></RoleGate></RequireAuth>} />
+          <Route path="/m/guard/patrol" element={<RequireAuth><RoleGate><GuardPatrol /></RoleGate></RequireAuth>} />
+          <Route path="/m/guard/incidents" element={<RequireAuth><RoleGate><GuardIncidents /></RoleGate></RequireAuth>} />
+          <Route path="/m/guard/profile" element={<RequireAuth><RoleGate><GuardProfile /></RoleGate></RequireAuth>} />
         </>
       )}
 
       {/* Client → Client Portal */}
       {role === 'client' && (
         <>
-          <Route path="/client" element={<RequireAuth><ClientMyObjects /></RequireAuth>} />
-          <Route path="/client/acceptance" element={<RequireAuth><ClientAcceptance /></RequireAuth>} />
-          <Route path="/client/violations" element={<RequireAuth><ClientViolations /></RequireAuth>} />
-          <Route path="/client/incidents" element={<RequireAuth><ClientIncidents /></RequireAuth>} />
-          <Route path="/client/reports" element={<RequireAuth><ClientSLAReports /></RequireAuth>} />
+          <Route path="/client" element={<RequireAuth><RoleGate><ClientMyObjects /></RoleGate></RequireAuth>} />
+          <Route path="/client/acceptance" element={<RequireAuth><RoleGate><ClientAcceptance /></RoleGate></RequireAuth>} />
+          <Route path="/client/violations" element={<RequireAuth><RoleGate><ClientViolations /></RoleGate></RequireAuth>} />
+          <Route path="/client/incidents" element={<RequireAuth><RoleGate><ClientIncidents /></RoleGate></RequireAuth>} />
+          <Route path="/client/reports" element={<RequireAuth><RoleGate><ClientSLAReports /></RoleGate></RequireAuth>} />
         </>
       )}
 
       {/* Director → Executive Dashboard */}
       {role === 'director' && (
         <>
-          <Route path="/exec" element={<RequireAuth><ExecutiveDashboard /></RequireAuth>} />
-          <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
+          <Route path="/exec" element={<RequireAuth><RoleGate><ExecutiveDashboard /></RoleGate></RequireAuth>} />
+          <Route path="/analytics" element={<RequireAuth><RoleGate><Analytics /></RoleGate></RequireAuth>} />
         </>
       )}
 
       {/* Shared routes for operational roles */}
-      {role !== 'guard' && role !== 'client' && role !== 'director' && (
+      {(role === 'org_admin' || role === 'dispatcher' || role === 'super_admin') && (
         <>
-          <Route path="/objects" element={<RequireAuth><Objects /></RequireAuth>} />
-          <Route path="/personnel" element={<RequireAuth><Personnel /></RequireAuth>} />
-          <Route path="/incidents" element={<RequireAuth><Incidents /></RequireAuth>} />
-          <Route path="/shifts" element={<RequireAuth><Shifts /></RequireAuth>} />
-          <Route path="/patrols" element={<RequireAuth><Patrols /></RequireAuth>} />
-          <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
+          <Route path="/objects" element={<RequireAuth><RoleGate><Objects /></RoleGate></RequireAuth>} />
+          <Route path="/personnel" element={<RequireAuth><RoleGate><Personnel /></RoleGate></RequireAuth>} />
+          <Route path="/incidents" element={<RequireAuth><RoleGate><Incidents /></RoleGate></RequireAuth>} />
+          <Route path="/shifts" element={<RequireAuth><RoleGate><Shifts /></RoleGate></RequireAuth>} />
+          <Route path="/patrols" element={<RequireAuth><RoleGate><Patrols /></RoleGate></RequireAuth>} />
+          <Route path="/analytics" element={<RequireAuth><RoleGate><Analytics /></RoleGate></RequireAuth>} />
+        </>
+      )}
+
+      {/* Chief can VIEW (read-only) shifts, patrols, incidents, analytics */}
+      {role === 'chief' && (
+        <>
+          <Route path="/shifts" element={<RequireAuth><RoleGate><Shifts /></RoleGate></RequireAuth>} />
+          <Route path="/patrols" element={<RequireAuth><RoleGate><Patrols /></RoleGate></RequireAuth>} />
+          <Route path="/incidents" element={<RequireAuth><RoleGate><Incidents /></RoleGate></RequireAuth>} />
+          <Route path="/analytics" element={<RequireAuth><RoleGate><Analytics /></RoleGate></RequireAuth>} />
         </>
       )}
 
