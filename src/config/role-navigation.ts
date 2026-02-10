@@ -11,6 +11,7 @@ import {
   Shield,
   MapPin,
   Briefcase,
+  ShieldAlert,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/soms';
@@ -23,11 +24,11 @@ export interface NavItem {
 
 /** Default landing route per role */
 export const roleDefaultRoute: Record<UserRole, string> = {
-  super_admin: '/',
-  dispatcher: '/',
-  org_admin: '/control',
-  chief: '/control',
-  director: '/executive',
+  super_admin: '/ops',
+  dispatcher: '/ops',
+  org_admin: '/admin',
+  chief: '/chief',
+  director: '/exec',
   guard: '/m/guard/home',
   client: '/client',
 };
@@ -35,7 +36,7 @@ export const roleDefaultRoute: Record<UserRole, string> = {
 /** Navigation menu per role */
 export const roleNavItems: Record<UserRole, NavItem[]> = {
   super_admin: [
-    { title: 'Дашборд', path: '/', icon: LayoutDashboard },
+    { title: 'Дашборд', path: '/ops', icon: LayoutDashboard },
     { title: 'Объекты', path: '/objects', icon: Building2 },
     { title: 'Персонал', path: '/personnel', icon: Users },
     { title: 'Инциденты', path: '/incidents', icon: AlertTriangle },
@@ -45,7 +46,7 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
 
   dispatcher: [
-    { title: 'Оперативный', path: '/', icon: LayoutDashboard },
+    { title: 'Оперативный', path: '/ops', icon: LayoutDashboard },
     { title: 'Инциденты', path: '/incidents', icon: AlertTriangle },
     { title: 'Объекты', path: '/objects', icon: Building2 },
     { title: 'Смены', path: '/shifts', icon: Clock },
@@ -54,7 +55,7 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
 
   org_admin: [
-    { title: 'Контроль', path: '/control', icon: Gauge },
+    { title: 'Управление', path: '/admin', icon: Gauge },
     { title: 'Объекты', path: '/objects', icon: Building2 },
     { title: 'Персонал', path: '/personnel', icon: Users },
     { title: 'Смены', path: '/shifts', icon: Clock },
@@ -63,7 +64,7 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
 
   chief: [
-    { title: 'Контроль', path: '/control', icon: Gauge },
+    { title: 'Контроль', path: '/chief', icon: Gauge },
     { title: 'Объекты', path: '/objects', icon: Building2 },
     { title: 'Персонал', path: '/personnel', icon: Users },
     { title: 'Смены', path: '/shifts', icon: Clock },
@@ -72,7 +73,7 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
 
   director: [
-    { title: 'Стратегический', path: '/executive', icon: Briefcase },
+    { title: 'Стратегический', path: '/exec', icon: Briefcase },
     { title: 'Аналитика', path: '/analytics', icon: BarChart3 },
   ],
 
@@ -84,9 +85,11 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
 
   client: [
-    { title: 'Обзор', path: '/client', icon: LayoutDashboard },
+    { title: 'Мои объекты', path: '/client', icon: Building2 },
+    { title: 'Приёмка', path: '/client/acceptance', icon: FileText },
+    { title: 'Нарушения', path: '/client/violations', icon: ShieldAlert },
     { title: 'Инциденты', path: '/client/incidents', icon: AlertTriangle },
-    { title: 'SLA отчёты', path: '/client/reports', icon: FileText },
+    { title: 'SLA и отчёты', path: '/client/reports', icon: BarChart3 },
   ],
 };
 
