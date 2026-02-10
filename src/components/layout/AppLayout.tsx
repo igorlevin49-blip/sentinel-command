@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
-import { Bell, Search, User, ChevronDown, LogOut } from 'lucide-react';
+import { Bell, Search, User, ChevronDown, LogOut, Eye, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRole } from '@/contexts/RoleContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { roleLabels } from '@/config/role-navigation';
+import { roleLabels, roleDefaultRoute } from '@/config/role-navigation';
+import { Badge } from '@/components/ui/badge';
 import type { UserRole } from '@/types/soms';
 
 interface AppLayoutProps {
@@ -14,18 +15,37 @@ interface AppLayoutProps {
 }
 
 const IS_DEV = import.meta.env.DEV;
-const availableRoles: UserRole[] = ['dispatcher', 'org_admin', 'chief', 'director', 'guard', 'client'];
+const devRoles: UserRole[] = ['dispatcher', 'org_admin', 'chief', 'director', 'guard', 'client'];
+const demoRoles: UserRole[] = ['super_admin', 'dispatcher', 'org_admin', 'chief', 'director', 'guard', 'client'];
 
 export function AppLayout({ children, title }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const { role, setRole, userName, userTitle } = useRole();
+  const { role, actualRole, isDemoView, setViewAsRole, setRole, userName, userTitle } = useRole();
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const isSuperAdmin = actualRole === 'super_admin';
+
   const handleLogout = async () => {
     await signOut();
     navigate('/login', { replace: true });
+  };
+
+  const handleDemoSwitch = (r: UserRole) => {
+    if (r === 'super_admin') {
+      setViewAsRole(null);
+    } else {
+      setViewAsRole(r);
+    }
+    setMenuOpen(false);
+    navigate(roleDefaultRoute[r], { replace: true });
+  };
+
+  const handleExitDemo = () => {
+    setViewAsRole(null);
+    setMenuOpen(false);
+    navigate(roleDefaultRoute['super_admin'], { replace: true });
   };
 
   return (
@@ -42,6 +62,19 @@ export function AppLayout({ children, title }: AppLayoutProps) {
         <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-md">
           <div className="flex items-center gap-4">
             {title && <h1 className="text-lg font-semibold text-foreground">{title}</h1>}
+            {/* Demo badge */}
+            {isDemoView && (
+              <Badge variant="warning" className="flex items-center gap-1.5">
+                <Eye className="h-3 w-3" />
+                DEMO: {roleLabels[role]}
+                <button
+                  onClick={handleExitDemo}
+                  className="ml-1 rounded-full p-0.5 hover:bg-warning-foreground/20"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
@@ -83,15 +116,44 @@ export function AppLayout({ children, title }: AppLayoutProps) {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setMenuOpen(false)} />
                   <div className="absolute right-0 top-full z-50 mt-1 w-56 rounded-lg border border-border bg-popover p-1 shadow-xl">
-                    {/* DEV-only role switcher */}
-                    {IS_DEV && (
+                    {/* SUPER_ADMIN demo role switcher */}
+                    {isSuperAdmin && (
+                      <>
+                        <div className="px-3 py-2 border-b border-border mb-1">
+                          <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                            <Eye className="inline h-3 w-3 mr-1" />
+                            Смотреть как роль
+                          </p>
+                        </div>
+                        {demoRoles.map((r) => (
+                          <button
+                            key={r}
+                            onClick={() => handleDemoSwitch(r)}
+                            className={cn(
+                              'flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors',
+                              role === r
+                                ? 'bg-primary/10 text-primary font-medium'
+                                : 'text-foreground hover:bg-muted'
+                            )}
+                          >
+                            {roleLabels[r]}
+                            {role === r && (
+                              <span className="ml-auto text-[10px] text-primary">✓</span>
+                            )}
+                          </button>
+                        ))}
+                      </>
+                    )}
+
+                    {/* DEV-only role switcher (non-super_admin) */}
+                    {IS_DEV && !isSuperAdmin && (
                       <>
                         <div className="px-3 py-2 border-b border-border mb-1">
                           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                             DEV: переключение ролей
                           </p>
                         </div>
-                        {availableRoles.map((r) => (
+                        {devRoles.map((r) => (
                           <button
                             key={r}
                             onClick={() => {
@@ -114,7 +176,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
                       </>
                     )}
 
-                    <div className={cn(IS_DEV && 'border-t border-border mt-1 pt-1')}>
+                    <div className={cn((isSuperAdmin || IS_DEV) && 'border-t border-border mt-1 pt-1')}>
                       <button
                         onClick={handleLogout}
                         className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
