@@ -9,7 +9,11 @@ import Dashboard from "./pages/Dashboard";
 import ControlDashboard from "./pages/ControlDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import ClientDashboard from "./pages/ClientDashboard";
-import GuardInterface from "./pages/GuardInterface";
+import GuardHome from "./pages/guard/GuardHome";
+import GuardShift from "./pages/guard/GuardShift";
+import GuardPatrol from "./pages/guard/GuardPatrol";
+import GuardIncidents from "./pages/guard/GuardIncidents";
+import GuardProfile from "./pages/guard/GuardProfile";
 import Objects from "./pages/Objects";
 import Personnel from "./pages/Personnel";
 import Incidents from "./pages/Incidents";
@@ -41,10 +45,12 @@ function AppRoutes() {
       {/* Guard → Mobile Interface */}
       {role === 'guard' && (
         <>
-          <Route path="/guard" element={<GuardInterface />} />
-          <Route path="/guard/patrol" element={<GuardInterface />} />
-          <Route path="/guard/incidents" element={<GuardInterface />} />
-          <Route path="/" element={<Navigate to="/guard" replace />} />
+          <Route path="/m/guard/home" element={<GuardHome />} />
+          <Route path="/m/guard/shift" element={<GuardShift />} />
+          <Route path="/m/guard/patrol" element={<GuardPatrol />} />
+          <Route path="/m/guard/incidents" element={<GuardIncidents />} />
+          <Route path="/m/guard/profile" element={<GuardProfile />} />
+          <Route path="/" element={<Navigate to="/m/guard/home" replace />} />
         </>
       )}
 
