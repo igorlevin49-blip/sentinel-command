@@ -1,66 +1,47 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Badge } from '@/components/ui/badge';
-import { mockIncidents } from '@/data/mock-data';
-import { AlertTriangle, Search, Clock, User } from 'lucide-react';
-import type { IncidentStatus, IncidentType } from '@/types/soms';
+import { useIncidents } from '@/hooks/use-supabase-data';
+import { AlertTriangle, Search, Clock, User, Loader2 } from 'lucide-react';
 
-const statusLabels: Record<IncidentStatus, string> = {
-  created: 'Создан',
-  accepted: 'Принят',
-  in_progress: 'В работе',
-  resolved: 'Решён',
-  closed: 'Закрыт',
+type IncidentStatusType = 'created' | 'accepted' | 'in_progress' | 'resolved' | 'closed';
+type IncidentTypeType = 'alarm' | 'violation' | 'event' | 'fraud';
+
+const statusLabels: Record<IncidentStatusType, string> = {
+  created: 'Создан', accepted: 'Принят', in_progress: 'В работе', resolved: 'Решён', closed: 'Закрыт',
 };
-
-const statusVariant: Record<IncidentStatus, 'default' | 'warning' | 'destructive' | 'success' | 'secondary'> = {
-  created: 'default',
-  accepted: 'warning',
-  in_progress: 'destructive',
-  resolved: 'success',
-  closed: 'secondary',
+const statusVariant: Record<IncidentStatusType, 'default' | 'warning' | 'destructive' | 'success' | 'secondary'> = {
+  created: 'default', accepted: 'warning', in_progress: 'destructive', resolved: 'success', closed: 'secondary',
 };
-
-const typeLabels: Record<IncidentType, string> = {
-  alarm: 'Тревога',
-  violation: 'Нарушение',
-  event: 'Событие',
+const typeLabels: Record<IncidentTypeType, string> = {
+  alarm: 'Тревога', violation: 'Нарушение', event: 'Событие', fraud: 'Мошенничество',
 };
-
-const typeIcons: Record<IncidentType, string> = {
-  alarm: '🔴',
-  violation: '🟡',
-  event: '🔵',
+const typeIcons: Record<IncidentTypeType, string> = {
+  alarm: '🔴', violation: '🟡', event: '🔵', fraud: '🟠',
 };
-
 const priorityLabels: Record<string, string> = {
-  critical: 'Критический',
-  high: 'Высокий',
-  medium: 'Средний',
-  low: 'Низкий',
+  critical: 'Критический', high: 'Высокий', medium: 'Средний', low: 'Низкий',
 };
-
 const priorityVariant: Record<string, 'destructive' | 'warning' | 'default' | 'secondary'> = {
-  critical: 'destructive',
-  high: 'warning',
-  medium: 'default',
-  low: 'secondary',
+  critical: 'destructive', high: 'warning', medium: 'default', low: 'secondary',
 };
 
 export default function Incidents() {
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<IncidentStatus | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<IncidentStatusType | 'all'>('all');
+  const { data: incidents, isLoading } = useIncidents();
 
-  const filtered = mockIncidents.filter((inc) => {
+  const filtered = (incidents ?? []).filter((inc) => {
+    const objectName = (inc.objects as any)?.name ?? '';
     const matchesSearch =
       inc.title.toLowerCase().includes(search.toLowerCase()) ||
       inc.id.toLowerCase().includes(search.toLowerCase()) ||
-      inc.objectName.toLowerCase().includes(search.toLowerCase());
+      objectName.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'all' || inc.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
-  const statusOptions: { value: IncidentStatus | 'all'; label: string }[] = [
+  const statusOptions: { value: IncidentStatusType | 'all'; label: string }[] = [
     { value: 'all', label: 'Все' },
     { value: 'created', label: 'Созданные' },
     { value: 'accepted', label: 'Принятые' },
@@ -71,7 +52,6 @@ export default function Incidents() {
 
   return (
     <AppLayout title="Инциденты">
-      {/* Toolbar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="relative">
@@ -102,83 +82,93 @@ export default function Incidents() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-muted/50">
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">ID</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Тип</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Описание</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Объект</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Приоритет</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Статус</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Время</th>
-                <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Назначен</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filtered.map((incident, i) => (
-                <tr
-                  key={incident.id}
-                  className="transition-colors hover:bg-muted/30 animate-fade-in"
-                  style={{ animationDelay: `${i * 30}ms` }}
-                >
-                  <td className="whitespace-nowrap px-5 py-3.5">
-                    <span className="font-mono text-xs font-medium text-foreground">{incident.id}</span>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-3.5">
-                    <span className="text-sm">
-                      {typeIcons[incident.type]} {typeLabels[incident.type]}
-                    </span>
-                  </td>
-                  <td className="max-w-xs px-5 py-3.5">
-                    <p className="text-sm font-medium text-foreground truncate">{incident.title}</p>
-                    <p className="text-xs text-muted-foreground truncate">{incident.description}</p>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-3.5 text-sm text-muted-foreground">
-                    {incident.objectName}
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-3.5">
-                    <Badge variant={priorityVariant[incident.priority]} className="text-[10px] px-1.5 py-0">
-                      {priorityLabels[incident.priority]}
-                    </Badge>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-3.5">
-                    <Badge variant={statusVariant[incident.status]} className="text-[10px] px-1.5 py-0">
-                      {statusLabels[incident.status]}
-                    </Badge>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-3.5">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span className="font-mono">
-                        {new Date(incident.createdAt).toLocaleString('ru-RU', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="whitespace-nowrap px-5 py-3.5">
-                    {incident.assignedTo ? (
-                      <div className="flex items-center gap-1.5 text-sm text-foreground">
-                        <User className="h-3.5 w-3.5 text-muted-foreground" />
-                        {incident.assignedTo}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {isLoading ? (
+        <div className="mt-12 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
-      </div>
+      ) : (
+        <div className="mt-6 overflow-hidden rounded-lg border border-border bg-card">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-border bg-muted/50">
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">ID</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Тип</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Описание</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Объект</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Приоритет</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Статус</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Время</th>
+                  <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground">Назначен</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filtered.map((incident, i) => {
+                  const objectName = (incident.objects as any)?.name ?? '—';
+                  return (
+                    <tr
+                      key={incident.id}
+                      className="transition-colors hover:bg-muted/30 animate-fade-in"
+                      style={{ animationDelay: `${i * 30}ms` }}
+                    >
+                      <td className="whitespace-nowrap px-5 py-3.5">
+                        <span className="font-mono text-xs font-medium text-foreground">{incident.id.slice(0, 8)}</span>
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3.5">
+                        <span className="text-sm">
+                          {typeIcons[incident.type as IncidentTypeType]} {typeLabels[incident.type as IncidentTypeType]}
+                        </span>
+                      </td>
+                      <td className="max-w-xs px-5 py-3.5">
+                        <p className="text-sm font-medium text-foreground truncate">{incident.title}</p>
+                        <p className="text-xs text-muted-foreground truncate">{incident.description}</p>
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3.5 text-sm text-muted-foreground">
+                        {objectName}
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3.5">
+                        <Badge variant={priorityVariant[incident.severity] ?? 'secondary'} className="text-[10px] px-1.5 py-0">
+                          {priorityLabels[incident.severity] ?? incident.severity}
+                        </Badge>
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3.5">
+                        <Badge variant={statusVariant[incident.status as IncidentStatusType]} className="text-[10px] px-1.5 py-0">
+                          {statusLabels[incident.status as IncidentStatusType]}
+                        </Badge>
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3.5">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Clock className="h-3 w-3" />
+                          <span className="font-mono">
+                            {new Date(incident.created_at).toLocaleString('ru-RU', {
+                              day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-5 py-3.5">
+                        {incident.assigned_to ? (
+                          <div className="flex items-center gap-1.5 text-sm text-foreground">
+                            <User className="h-3.5 w-3.5 text-muted-foreground" />
+                            {incident.assigned_to}
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {filtered.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="py-8 text-center text-sm text-muted-foreground">Инцидентов не найдено</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </AppLayout>
   );
 }
