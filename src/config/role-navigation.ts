@@ -28,7 +28,7 @@ export const roleDefaultRoute: Record<UserRole, string> = {
   org_admin: '/control',
   chief: '/control',
   director: '/executive',
-  guard: '/guard',
+  guard: '/m/guard/home',
   client: '/client',
 };
 
