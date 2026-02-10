@@ -28,6 +28,7 @@ import Objects from "./pages/Objects";
 import Personnel from "./pages/Personnel";
 import Incidents from "./pages/Incidents";
 import Shifts from "./pages/Shifts";
+import Posts from "./pages/Posts";
 import Patrols from "./pages/Patrols";
 import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
