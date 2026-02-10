@@ -3,8 +3,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { RoleProvider, useRole } from "@/contexts/RoleContext";
 import { roleDefaultRoute } from "@/config/role-navigation";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ControlDashboard from "./pages/ControlDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
@@ -28,70 +31,118 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function PublicOnly({ children }: { children: React.ReactNode }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <>{children}</>;
+}
+
+function DashboardRedirect() {
+  const { role } = useRole();
+  return <Navigate to={roleDefaultRoute[role]} replace />;
+}
+
 function AppRoutes() {
   const { role } = useRole();
 
   return (
     <Routes>
+      {/* Public routes */}
+      <Route path="/login" element={<PublicOnly><Login /></PublicOnly>} />
+      <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
+
+      {/* Dashboard redirect */}
+      <Route path="/dashboard" element={<RequireAuth><DashboardRedirect /></RequireAuth>} />
+
       {/* Dispatcher / Super Admin → Ops Dashboard */}
       {(role === 'dispatcher' || role === 'super_admin') && (
-        <Route path="/ops" element={<Dashboard />} />
+        <Route path="/ops" element={<RequireAuth><Dashboard /></RequireAuth>} />
       )}
 
       {/* Org Admin → Admin Control Dashboard */}
       {role === 'org_admin' && (
-        <Route path="/admin" element={<ControlDashboard />} />
+        <Route path="/admin" element={<RequireAuth><ControlDashboard /></RequireAuth>} />
       )}
 
       {/* Chief of Security → Chief Control Dashboard */}
       {role === 'chief' && (
-        <Route path="/chief" element={<ControlDashboard />} />
+        <Route path="/chief" element={<RequireAuth><ControlDashboard /></RequireAuth>} />
       )}
 
       {/* Guard → Mobile Interface */}
       {role === 'guard' && (
         <>
-          <Route path="/m/guard/home" element={<GuardHome />} />
-          <Route path="/m/guard/shift" element={<GuardShift />} />
-          <Route path="/m/guard/patrol" element={<GuardPatrol />} />
-          <Route path="/m/guard/incidents" element={<GuardIncidents />} />
-          <Route path="/m/guard/profile" element={<GuardProfile />} />
+          <Route path="/m/guard/home" element={<RequireAuth><GuardHome /></RequireAuth>} />
+          <Route path="/m/guard/shift" element={<RequireAuth><GuardShift /></RequireAuth>} />
+          <Route path="/m/guard/patrol" element={<RequireAuth><GuardPatrol /></RequireAuth>} />
+          <Route path="/m/guard/incidents" element={<RequireAuth><GuardIncidents /></RequireAuth>} />
+          <Route path="/m/guard/profile" element={<RequireAuth><GuardProfile /></RequireAuth>} />
         </>
       )}
 
       {/* Client → Client Portal */}
       {role === 'client' && (
         <>
-          <Route path="/client" element={<ClientMyObjects />} />
-          <Route path="/client/acceptance" element={<ClientAcceptance />} />
-          <Route path="/client/violations" element={<ClientViolations />} />
-          <Route path="/client/incidents" element={<ClientIncidents />} />
-          <Route path="/client/reports" element={<ClientSLAReports />} />
+          <Route path="/client" element={<RequireAuth><ClientMyObjects /></RequireAuth>} />
+          <Route path="/client/acceptance" element={<RequireAuth><ClientAcceptance /></RequireAuth>} />
+          <Route path="/client/violations" element={<RequireAuth><ClientViolations /></RequireAuth>} />
+          <Route path="/client/incidents" element={<RequireAuth><ClientIncidents /></RequireAuth>} />
+          <Route path="/client/reports" element={<RequireAuth><ClientSLAReports /></RequireAuth>} />
         </>
       )}
 
       {/* Director → Executive Dashboard */}
       {role === 'director' && (
         <>
-          <Route path="/exec" element={<ExecutiveDashboard />} />
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/exec" element={<RequireAuth><ExecutiveDashboard /></RequireAuth>} />
+          <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
         </>
       )}
 
       {/* Shared routes for operational roles */}
       {role !== 'guard' && role !== 'client' && role !== 'director' && (
         <>
-          <Route path="/objects" element={<Objects />} />
-          <Route path="/personnel" element={<Personnel />} />
-          <Route path="/incidents" element={<Incidents />} />
-          <Route path="/shifts" element={<Shifts />} />
-          <Route path="/patrols" element={<Patrols />} />
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/objects" element={<RequireAuth><Objects /></RequireAuth>} />
+          <Route path="/personnel" element={<RequireAuth><Personnel /></RequireAuth>} />
+          <Route path="/incidents" element={<RequireAuth><Incidents /></RequireAuth>} />
+          <Route path="/shifts" element={<RequireAuth><Shifts /></RequireAuth>} />
+          <Route path="/patrols" element={<RequireAuth><Patrols /></RequireAuth>} />
+          <Route path="/analytics" element={<RequireAuth><Analytics /></RequireAuth>} />
         </>
       )}
 
-      {/* Fallback → redirect to role default */}
-      <Route path="*" element={<Navigate to={roleDefaultRoute[role]} replace />} />
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
@@ -102,9 +153,11 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <RoleProvider>
-          <AppRoutes />
-        </RoleProvider>
+        <AuthProvider>
+          <RoleProvider>
+            <AppRoutes />
+          </RoleProvider>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
