@@ -39,13 +39,13 @@ export const roleDefaultRoute: Record<UserRole, string> = {
 /** Navigation menu per role */
 export const roleNavItems: Record<UserRole, NavItem[]> = {
   super_admin: [
-    { title: 'Дашборд', path: '/ops', icon: LayoutDashboard },
-    { title: 'Объекты', path: '/objects', icon: Building2 },
-    { title: 'Персонал', path: '/personnel', icon: Users },
+    { title: 'Платформа', path: '/super-admin', icon: Globe },
+    { title: 'Организации', path: '/super-admin/orgs', icon: Building2 },
+    { title: 'Пользователи', path: '/users', icon: UserCog },
     { title: 'Инциденты', path: '/incidents', icon: AlertTriangle },
-    { title: 'Смены', path: '/shifts', icon: Clock },
-    { title: 'Обходы', path: '/patrols', icon: Route },
+    { title: 'Объекты', path: '/objects', icon: Building2 },
     { title: 'Аналитика', path: '/analytics', icon: BarChart3 },
+    { title: 'Аудит', path: '/super-admin/audit', icon: FileText },
   ],
 
   dispatcher: [
