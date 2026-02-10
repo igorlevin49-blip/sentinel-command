@@ -12,6 +12,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ChiefControl from "./pages/ChiefControl";
+import SuperAdminDashboard from "./pages/SuperAdminDashboard";
 import ExecutiveDashboard from "./pages/ExecutiveDashboard";
 import ClientMyObjects from "./pages/client/ClientMyObjects";
 import ClientAcceptance from "./pages/client/ClientAcceptance";
