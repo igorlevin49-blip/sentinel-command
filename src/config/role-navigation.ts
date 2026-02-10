@@ -77,9 +77,10 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
   ],
 
   guard: [
-    { title: 'Моя смена', path: '/guard', icon: Shield },
-    { title: 'Обход', path: '/guard/patrol', icon: MapPin },
-    { title: 'Инциденты', path: '/guard/incidents', icon: AlertTriangle },
+    { title: 'Главная', path: '/m/guard/home', icon: Shield },
+    { title: 'Смена', path: '/m/guard/shift', icon: Clock },
+    { title: 'Обход', path: '/m/guard/patrol', icon: MapPin },
+    { title: 'Инциденты', path: '/m/guard/incidents', icon: AlertTriangle },
   ],
 
   client: [
