@@ -21,8 +21,8 @@ const quickLinks = [
 ];
 
 export default function SuperAdminDashboard() {
-  const { data: objects } = useSupabaseObjects();
-  const { data: incidents } = useSupabaseIncidents();
+  const { data: objects } = useObjects();
+  const { data: incidents } = useIncidents();
 
   const openIncidents = incidents?.filter(
     (i) => i.status !== 'closed' && i.status !== 'resolved'
