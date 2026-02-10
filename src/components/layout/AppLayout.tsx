@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppSidebar } from './AppSidebar';
-import { Bell, Search, User, ChevronDown } from 'lucide-react';
+import { Bell, Search, User, ChevronDown, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRole } from '@/contexts/RoleContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { roleLabels } from '@/config/role-navigation';
 import type { UserRole } from '@/types/soms';
 
@@ -16,7 +18,14 @@ const availableRoles: UserRole[] = ['dispatcher', 'org_admin', 'chief', 'directo
 export function AppLayout({ children, title }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { role, setRole, userName, userTitle } = useRole();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -99,6 +108,15 @@ export function AppLayout({ children, title }: AppLayoutProps) {
                         )}
                       </button>
                     ))}
+                    <div className="border-t border-border mt-1 pt-1">
+                      <button
+                        onClick={handleLogout}
+                        className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Выйти
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
