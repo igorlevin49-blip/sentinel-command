@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Badge } from '@/components/ui/badge';
-import { mockObjects } from '@/data/mock-data';
-import { Building2, Search, Filter, MapPin, Users, ShieldAlert } from 'lucide-react';
-import type { ObjectRiskLevel } from '@/types/soms';
+import { useObjects } from '@/hooks/use-supabase-data';
+import { Building2, Search, Filter, MapPin, Users, ShieldAlert, Loader2 } from 'lucide-react';
 
-const riskLabels: Record<ObjectRiskLevel, string> = {
+type RiskLevel = 'low' | 'medium' | 'high' | 'critical';
+
+const riskLabels: Record<RiskLevel, string> = {
   low: 'Низкий',
   medium: 'Средний',
   high: 'Высокий',
   critical: 'Критический',
 };
 
-const riskVariant: Record<ObjectRiskLevel, 'success' | 'warning' | 'destructive' | 'default'> = {
+const riskVariant: Record<RiskLevel, 'success' | 'warning' | 'destructive' | 'default'> = {
   low: 'success',
   medium: 'warning',
   high: 'destructive',
@@ -21,17 +22,18 @@ const riskVariant: Record<ObjectRiskLevel, 'success' | 'warning' | 'destructive'
 
 export default function Objects() {
   const [search, setSearch] = useState('');
-  const [riskFilter, setRiskFilter] = useState<ObjectRiskLevel | 'all'>('all');
+  const [riskFilter, setRiskFilter] = useState<RiskLevel | 'all'>('all');
+  const { data: objects, isLoading } = useObjects();
 
-  const filtered = mockObjects.filter((obj) => {
+  const filtered = (objects ?? []).filter((obj) => {
     const matchesSearch =
       obj.name.toLowerCase().includes(search.toLowerCase()) ||
-      obj.address.toLowerCase().includes(search.toLowerCase());
-    const matchesRisk = riskFilter === 'all' || obj.riskLevel === riskFilter;
+      (obj.address ?? '').toLowerCase().includes(search.toLowerCase());
+    const matchesRisk = riskFilter === 'all' || obj.risk_level === riskFilter;
     return matchesSearch && matchesRisk;
   });
 
-  const riskOptions: { value: ObjectRiskLevel | 'all'; label: string }[] = [
+  const riskOptions: { value: RiskLevel | 'all'; label: string }[] = [
     { value: 'all', label: 'Все' },
     { value: 'low', label: 'Низкий' },
     { value: 'medium', label: 'Средний' },
@@ -76,61 +78,57 @@ export default function Objects() {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((obj, i) => (
-          <div
-            key={obj.id}
-            className="group rounded-lg border border-border bg-card p-5 transition-all hover:border-primary/30 animate-fade-in"
-            style={{ animationDelay: `${i * 50}ms` }}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                  obj.status === 'active' ? 'bg-primary/10' : 'bg-muted'
-                }`}>
-                  <Building2 className={`h-5 w-5 ${obj.status === 'active' ? 'text-primary' : 'text-muted-foreground'}`} />
+      {isLoading ? (
+        <div className="mt-12 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((obj, i) => (
+            <div
+              key={obj.id}
+              className="group rounded-lg border border-border bg-card p-5 transition-all hover:border-primary/30 animate-fade-in"
+              style={{ animationDelay: `${i * 50}ms` }}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-2">
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${
+                    obj.is_active ? 'bg-primary/10' : 'bg-muted'
+                  }`}>
+                    <Building2 className={`h-5 w-5 ${obj.is_active ? 'text-primary' : 'text-muted-foreground'}`} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-foreground">{obj.name}</h3>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground">{obj.name}</h3>
-                  <p className="text-xs text-muted-foreground">{obj.type}</p>
-                </div>
-              </div>
-              <Badge
-                variant={obj.status === 'active' ? 'success' : 'secondary'}
-                className="text-[10px] px-1.5 py-0"
-              >
-                {obj.status === 'active' ? 'Активен' : 'Неактивен'}
-              </Badge>
-            </div>
-
-            <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{obj.address}</span>
-            </div>
-
-            <div className="mt-4 flex items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <ShieldAlert className="h-3.5 w-3.5 text-muted-foreground" />
-                <Badge variant={riskVariant[obj.riskLevel]} className="text-[10px] px-1.5 py-0">
-                  {riskLabels[obj.riskLevel]}
+                <Badge
+                  variant={obj.is_active ? 'success' : 'secondary'}
+                  className="text-[10px] px-1.5 py-0"
+                >
+                  {obj.is_active ? 'Активен' : 'Неактивен'}
                 </Badge>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Users className="h-3.5 w-3.5" />
-                <span className="font-mono">{obj.personnelCount}</span>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                <span className="font-mono">{obj.postsCount}</span> постов
-              </div>
-            </div>
 
-            <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
-              <span className="text-xs text-muted-foreground">Режим: {obj.workingMode}</span>
+              <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{obj.address ?? '—'}</span>
+              </div>
+
+              <div className="mt-4 flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <ShieldAlert className="h-3.5 w-3.5 text-muted-foreground" />
+                  <Badge variant={riskVariant[obj.risk_level as RiskLevel]} className="text-[10px] px-1.5 py-0">
+                    {riskLabels[obj.risk_level as RiskLevel]}
+                  </Badge>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  <span className="font-mono">{(obj.posts as any[])?.length ?? 0}</span> постов
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </AppLayout>
   );
 }
