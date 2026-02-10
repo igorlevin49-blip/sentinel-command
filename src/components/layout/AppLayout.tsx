@@ -18,7 +18,14 @@ const availableRoles: UserRole[] = ['dispatcher', 'org_admin', 'chief', 'directo
 export function AppLayout({ children, title }: AppLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { role, setRole, userName, userTitle } = useRole();
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [roleMenuOpen, setRoleMenuOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="min-h-screen bg-background">
