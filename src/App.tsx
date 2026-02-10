@@ -183,6 +183,7 @@ function AppRoutes() {
           <Route path="/shifts" element={<RequireAuth><RoleGate><Shifts /></RoleGate></RequireAuth>} />
           <Route path="/patrols" element={<RequireAuth><RoleGate><Patrols /></RoleGate></RequireAuth>} />
           <Route path="/analytics" element={<RequireAuth><RoleGate><Analytics /></RoleGate></RequireAuth>} />
+          <Route path="/users" element={<RequireAuth><RoleGate><Personnel /></RoleGate></RequireAuth>} />
         </>
       )}
 
