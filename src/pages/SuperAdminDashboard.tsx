@@ -9,7 +9,7 @@ import {
   FileText,
   ArrowUpRight,
 } from 'lucide-react';
-import { useSupabaseObjects, useSupabaseIncidents } from '@/hooks/use-supabase-data';
+import { useObjects, useIncidents } from '@/hooks/use-supabase-data';
 
 const quickLinks = [
   { title: 'Организации', desc: 'Все организации платформы', icon: Building2, path: '/super-admin/orgs' },
