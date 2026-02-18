@@ -1,10 +1,10 @@
 import { AppLayout } from '@/components/layout/AppLayout';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
-import { Shield, UserPlus, X } from 'lucide-react';
-
-type PlatformRoleEnum = 'platform_super_admin' | 'platform_admin' | 'platform_dispatcher' | 'platform_director';
+import { Input } from '@/components/ui/input';
+import { Shield, UserPlus, X, Pencil, Check } from 'lucide-react';
+import { usePlatformAuth, type PlatformRoleEnum } from '@/contexts/PlatformAuthContext';
 
 interface PlatformRole {
   id: string;
@@ -14,6 +14,13 @@ interface PlatformRole {
   granted_by: string | null;
   created_at: string;
 }
+
+const ROLE_OPTIONS: PlatformRoleEnum[] = [
+  'platform_super_admin',
+  'platform_admin',
+  'platform_dispatcher',
+  'platform_director',
+];
 
 const roleLabels: Record<PlatformRoleEnum, string> = {
   platform_super_admin: 'Платформ. Суперадмин',
@@ -29,12 +36,27 @@ const roleBadgeVariants: Record<PlatformRoleEnum, string> = {
   platform_director: 'bg-accent/15 text-accent border-accent/30',
 };
 
+interface FormState {
+  userId: string;
+  role: PlatformRoleEnum;
+}
+
+const emptyForm: FormState = { userId: '', role: 'platform_dispatcher' };
+
 export default function PlatformRoles() {
+  const { isPlatformSA } = usePlatformAuth();
   const [roles, setRoles] = useState<PlatformRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState<FormState>(emptyForm);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editRole, setEditRole] = useState<PlatformRoleEnum>('platform_dispatcher');
 
-  async function fetchRoles() {
+  const fetchRoles = useCallback(async () => {
+    setLoading(true);
     const { data, error } = await supabase
       .from('platform_roles')
       .select('*')
@@ -46,12 +68,47 @@ export default function PlatformRoles() {
       setRoles((data as PlatformRole[]) ?? []);
     }
     setLoading(false);
-  }
+  }, []);
 
-  useEffect(() => { fetchRoles(); }, []);
+  useEffect(() => { fetchRoles(); }, [fetchRoles]);
 
   async function toggleActive(id: string, current: boolean) {
     await supabase.from('platform_roles').update({ is_active: !current }).eq('id', id);
+    fetchRoles();
+  }
+
+  async function deleteRole(id: string) {
+    if (!window.confirm('Удалить платформенную роль?')) return;
+    await supabase.from('platform_roles').delete().eq('id', id);
+    fetchRoles();
+  }
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setSaveError(null);
+    const uid = form.userId.trim();
+    if (!uid) { setSaveError('Введите user_id'); setSaving(false); return; }
+
+    const { error } = await supabase.from('platform_roles').insert({
+      user_id: uid,
+      role: form.role,
+      is_active: true,
+    });
+
+    if (error) {
+      setSaveError(error.code === '42501' ? 'Нет прав для добавления' : error.message);
+    } else {
+      setForm(emptyForm);
+      setShowForm(false);
+      fetchRoles();
+    }
+    setSaving(false);
+  }
+
+  async function saveEditRole(id: string) {
+    await supabase.from('platform_roles').update({ role: editRole }).eq('id', id);
+    setEditId(null);
     fetchRoles();
   }
 
@@ -66,16 +123,65 @@ export default function PlatformRoles() {
               Управление доступом к функциям платформы (отдельно от org_members).
             </p>
           </div>
-          <button
-            onClick={() => alert('TODO: форма добавления пользователя')}
-            className="flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <UserPlus className="h-4 w-4" />
-            Добавить
-          </button>
+          {isPlatformSA && (
+            <button
+              onClick={() => { setShowForm(!showForm); setSaveError(null); }}
+              className="flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <UserPlus className="h-4 w-4" />
+              Добавить
+            </button>
+          )}
         </div>
 
-        {/* RBAC Matrix info */}
+        {/* Add form */}
+        {showForm && (
+          <form onSubmit={handleSave} className="rounded-lg border border-border bg-card p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-foreground">Назначить платформенную роль</h3>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">User ID (UUID)</label>
+                <Input
+                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                  value={form.userId}
+                  onChange={(e) => setForm({ ...form, userId: e.target.value })}
+                  className="font-mono text-xs"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">Роль</label>
+                <select
+                  value={form.role}
+                  onChange={(e) => setForm({ ...form, role: e.target.value as PlatformRoleEnum })}
+                  className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                >
+                  {ROLE_OPTIONS.map((r) => (
+                    <option key={r} value={r}>{roleLabels[r]}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {saveError && <p className="text-xs text-destructive">{saveError}</p>}
+            <div className="flex items-center gap-2">
+              <button
+                type="submit"
+                disabled={saving}
+                className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+              >
+                {saving ? 'Сохранение…' : 'Назначить'}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowForm(false); setSaveError(null); setForm(emptyForm); }}
+                className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+              >
+                Отмена
+              </button>
+            </div>
+          </form>
+        )}
+
+        {/* RBAC info table */}
         <div className="rounded-lg border border-border bg-muted/30 p-4">
           <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
             <Shield className="h-3.5 w-3.5 text-primary" />
@@ -129,9 +235,7 @@ export default function PlatformRoles() {
           <div className="rounded-lg border border-border bg-card p-8 text-center">
             <Shield className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
             <p className="font-medium text-foreground">Платформенные роли не назначены</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Нажмите «Добавить» чтобы выдать пользователю роль платформы.
-            </p>
+            <p className="text-sm text-muted-foreground mt-1">Нажмите «Добавить» чтобы выдать пользователю роль платформы.</p>
           </div>
         ) : (
           <div className="rounded-lg border border-border bg-card overflow-hidden">
@@ -142,17 +246,37 @@ export default function PlatformRoles() {
                   <th className="text-left px-5 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Роль</th>
                   <th className="text-left px-5 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Статус</th>
                   <th className="text-left px-5 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Дата</th>
-                  <th className="px-5 py-3" />
+                  <th className="px-5 py-3 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Действия</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {roles.map((r) => (
                   <tr key={r.id} className="hover:bg-muted/30 transition-colors">
-                    <td className="px-5 py-3 font-mono text-xs text-muted-foreground">{r.user_id.slice(0, 8)}…</td>
+                    <td className="px-5 py-3 font-mono text-xs text-muted-foreground" title={r.user_id}>{r.user_id.slice(0, 8)}…</td>
                     <td className="px-5 py-3">
-                      <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${roleBadgeVariants[r.role]}`}>
-                        {roleLabels[r.role]}
-                      </span>
+                      {editId === r.id ? (
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={editRole}
+                            onChange={(e) => setEditRole(e.target.value as PlatformRoleEnum)}
+                            className="rounded border border-input bg-background px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-ring"
+                          >
+                            {ROLE_OPTIONS.map((opt) => (
+                              <option key={opt} value={opt}>{roleLabels[opt]}</option>
+                            ))}
+                          </select>
+                          <button onClick={() => saveEditRole(r.id)} className="text-primary hover:text-primary/80">
+                            <Check className="h-4 w-4" />
+                          </button>
+                          <button onClick={() => setEditId(null)} className="text-muted-foreground hover:text-foreground">
+                            <X className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className={`inline-flex items-center rounded-md border px-2 py-0.5 text-xs font-medium ${roleBadgeVariants[r.role]}`}>
+                          {roleLabels[r.role]}
+                        </span>
+                      )}
                     </td>
                     <td className="px-5 py-3">
                       <Badge variant={r.is_active ? 'success' : 'secondary'}>
@@ -162,13 +286,34 @@ export default function PlatformRoles() {
                     <td className="px-5 py-3 text-xs text-muted-foreground">
                       {new Date(r.created_at).toLocaleDateString('ru')}
                     </td>
-                    <td className="px-5 py-3 text-right">
-                      <button
-                        onClick={() => toggleActive(r.id, r.is_active)}
-                        className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        {r.is_active ? <X className="h-4 w-4" /> : '✓'}
-                      </button>
+                    <td className="px-5 py-3">
+                      <div className="flex items-center justify-end gap-2">
+                        {isPlatformSA && editId !== r.id && (
+                          <button
+                            onClick={() => { setEditId(r.id); setEditRole(r.role); }}
+                            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                            title="Изменить роль"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => toggleActive(r.id, r.is_active)}
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                          title={r.is_active ? 'Деактивировать' : 'Активировать'}
+                        >
+                          {r.is_active ? <X className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                        </button>
+                        {isPlatformSA && (
+                          <button
+                            onClick={() => deleteRole(r.id)}
+                            className="text-xs text-destructive hover:text-destructive/80 transition-colors"
+                            title="Удалить"
+                          >
+                            <X className="h-4 w-4 text-destructive" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
