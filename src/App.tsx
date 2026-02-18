@@ -32,6 +32,12 @@ import Posts from "./pages/Posts";
 import Patrols from "./pages/Patrols";
 import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
+// Platform pages (super_admin)
+import PlatformRoles from "./pages/platform/PlatformRoles";
+import Contracts from "./pages/platform/Contracts";
+import SLARules from "./pages/platform/SLARules";
+import DispatchRules from "./pages/platform/DispatchRules";
+import EscalationRules from "./pages/platform/EscalationRules";
 
 const queryClient = new QueryClient();
 
@@ -124,6 +130,12 @@ function AppRoutes() {
           <Route path="/super-admin" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
           <Route path="/super-admin/orgs" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
           <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
+          {/* Platform management pages */}
+          <Route path="/platform/roles" element={<RequireAuth><RoleGate><PlatformRoles /></RoleGate></RequireAuth>} />
+          <Route path="/platform/contracts" element={<RequireAuth><RoleGate><Contracts /></RoleGate></RequireAuth>} />
+          <Route path="/platform/sla" element={<RequireAuth><RoleGate><SLARules /></RoleGate></RequireAuth>} />
+          <Route path="/platform/dispatch" element={<RequireAuth><RoleGate><DispatchRules /></RoleGate></RequireAuth>} />
+          <Route path="/platform/escalations" element={<RequireAuth><RoleGate><EscalationRules /></RoleGate></RequireAuth>} />
         </>
       )}
 
