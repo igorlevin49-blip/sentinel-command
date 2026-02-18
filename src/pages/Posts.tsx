@@ -32,6 +32,7 @@ export default function Posts() {
         .from('posts')
         .select('id, name, type, is_active, description, object_id, objects(name)')
         .order('name', { ascending: true });
+      console.debug('[Posts] query result:', { count: data?.length ?? 0, error });
 
       if (error) {
         console.error('[Posts] fetch error:', error);

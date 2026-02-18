@@ -134,10 +134,12 @@ function AppRoutes() {
 
       {/* Org Admin → Admin Dashboard (full config) */}
       {role === 'org_admin' && (
-        <>
-          <Route path="/admin" element={<RequireAuth><RoleGate><AdminDashboard /></RoleGate></RequireAuth>} />
-          <Route path="/posts" element={<RequireAuth><RoleGate><Posts /></RoleGate></RequireAuth>} />
-        </>
+        <Route path="/admin" element={<RequireAuth><RoleGate><AdminDashboard /></RoleGate></RequireAuth>} />
+      )}
+
+      {/* Posts — accessible to org_admin and super_admin */}
+      {(role === 'org_admin' || role === 'super_admin') && (
+        <Route path="/posts" element={<RequireAuth><RoleGate><Posts /></RoleGate></RequireAuth>} />
       )}
 
       {/* Chief → Operations quality control (read-only config) */}
