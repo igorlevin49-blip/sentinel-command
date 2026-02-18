@@ -90,6 +90,7 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
     { title: 'Смена', path: '/m/guard/shift', icon: Clock },
     { title: 'Обход', path: '/m/guard/patrol', icon: MapPin },
     { title: 'Инциденты', path: '/m/guard/incidents', icon: AlertTriangle },
+    { title: 'Профиль', path: '/m/guard/profile', icon: UserCog },
   ],
 
   client: [

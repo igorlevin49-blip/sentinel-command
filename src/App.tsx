@@ -5,7 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { RoleProvider, useRole } from "@/contexts/RoleContext";
-import { PlatformAuthProvider, usePlatformAuth } from "@/contexts/PlatformAuthContext";
+import { PlatformAuthProvider } from "@/contexts/PlatformAuthContext";
+import { ActiveOrgProvider } from "@/contexts/ActiveOrgContext";
 import { PlatformGate } from "@/components/guard/PlatformGate";
 import { roleDefaultRoute } from "@/config/role-navigation";
 import { useEffect } from "react";
@@ -27,8 +28,10 @@ import GuardPatrol from "./pages/guard/GuardPatrol";
 import GuardIncidents from "./pages/guard/GuardIncidents";
 import GuardProfile from "./pages/guard/GuardProfile";
 import Objects from "./pages/Objects";
+import ObjectDetails from "./pages/ObjectDetails";
 import Personnel from "./pages/Personnel";
-import Incidents from "./pages/Incidents";
+import IncidentsList from "./pages/IncidentsList";
+import IncidentDetails from "./pages/IncidentDetails";
 import Shifts from "./pages/Shifts";
 import Posts from "./pages/Posts";
 import Patrols from "./pages/Patrols";
@@ -215,8 +218,10 @@ function AppRoutes() {
       {(role === 'org_admin' || role === 'dispatcher' || role === 'super_admin') && (
         <>
           <Route path="/objects" element={<RequireAuth><RoleGate><Objects /></RoleGate></RequireAuth>} />
+          <Route path="/objects/:id" element={<RequireAuth><RoleGate><ObjectDetails /></RoleGate></RequireAuth>} />
           <Route path="/personnel" element={<RequireAuth><RoleGate><Personnel /></RoleGate></RequireAuth>} />
-          <Route path="/incidents" element={<RequireAuth><RoleGate><Incidents /></RoleGate></RequireAuth>} />
+          <Route path="/incidents" element={<RequireAuth><RoleGate><IncidentsList /></RoleGate></RequireAuth>} />
+          <Route path="/incidents/:id" element={<RequireAuth><RoleGate><IncidentDetails /></RoleGate></RequireAuth>} />
           <Route path="/shifts" element={<RequireAuth><RoleGate><Shifts /></RoleGate></RequireAuth>} />
           <Route path="/patrols" element={<RequireAuth><RoleGate><Patrols /></RoleGate></RequireAuth>} />
           <Route path="/analytics" element={<RequireAuth><RoleGate><Analytics /></RoleGate></RequireAuth>} />
@@ -224,12 +229,13 @@ function AppRoutes() {
         </>
       )}
 
-      {/* Chief can VIEW (read-only) shifts, patrols, incidents, analytics */}
+      {/* Chief can VIEW/ACT on incidents */}
       {role === 'chief' && (
         <>
           <Route path="/shifts" element={<RequireAuth><RoleGate><Shifts /></RoleGate></RequireAuth>} />
           <Route path="/patrols" element={<RequireAuth><RoleGate><Patrols /></RoleGate></RequireAuth>} />
-          <Route path="/incidents" element={<RequireAuth><RoleGate><Incidents /></RoleGate></RequireAuth>} />
+          <Route path="/incidents" element={<RequireAuth><RoleGate><IncidentsList /></RoleGate></RequireAuth>} />
+          <Route path="/incidents/:id" element={<RequireAuth><RoleGate><IncidentDetails /></RoleGate></RequireAuth>} />
           <Route path="/analytics" element={<RequireAuth><RoleGate><Analytics /></RoleGate></RequireAuth>} />
         </>
       )}
@@ -249,7 +255,9 @@ const App = () => (
         <AuthProvider>
           <RoleProvider>
             <PlatformAuthProvider>
-              <AppRoutes />
+              <ActiveOrgProvider>
+                <AppRoutes />
+              </ActiveOrgProvider>
             </PlatformAuthProvider>
           </RoleProvider>
         </AuthProvider>

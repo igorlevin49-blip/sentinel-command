@@ -236,59 +236,123 @@ export type Database = {
           },
         ]
       }
+      incident_events: {
+        Row: {
+          actor_user_id: string
+          created_at: string
+          event_type: string
+          id: string
+          incident_id: string
+          org_id: string
+          payload_json: Json
+        }
+        Insert: {
+          actor_user_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          incident_id: string
+          org_id: string
+          payload_json?: Json
+        }
+        Update: {
+          actor_user_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          incident_id?: string
+          org_id?: string
+          payload_json?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incident_events_incident_id_fkey"
+            columns: ["incident_id"]
+            isOneToOne: false
+            referencedRelation: "incidents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "incident_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       incidents: {
         Row: {
           accepted_at: string | null
           assigned_to: string | null
+          assigned_to_personnel_id: string | null
           closed_at: string | null
           created_at: string
           created_by_user: string | null
           description: string | null
+          en_route_at: string | null
           id: string
           object_id: string | null
+          on_site_at: string | null
           org_id: string
           resolved_at: string | null
           severity: Database["public"]["Enums"]["risk_level"]
           status: Database["public"]["Enums"]["incident_status"]
           title: string
+          triaged_at: string | null
           type: Database["public"]["Enums"]["incident_type"]
           updated_at: string
         }
         Insert: {
           accepted_at?: string | null
           assigned_to?: string | null
+          assigned_to_personnel_id?: string | null
           closed_at?: string | null
           created_at?: string
           created_by_user?: string | null
           description?: string | null
+          en_route_at?: string | null
           id?: string
           object_id?: string | null
+          on_site_at?: string | null
           org_id: string
           resolved_at?: string | null
           severity?: Database["public"]["Enums"]["risk_level"]
           status?: Database["public"]["Enums"]["incident_status"]
           title: string
+          triaged_at?: string | null
           type?: Database["public"]["Enums"]["incident_type"]
           updated_at?: string
         }
         Update: {
           accepted_at?: string | null
           assigned_to?: string | null
+          assigned_to_personnel_id?: string | null
           closed_at?: string | null
           created_at?: string
           created_by_user?: string | null
           description?: string | null
+          en_route_at?: string | null
           id?: string
           object_id?: string | null
+          on_site_at?: string | null
           org_id?: string
           resolved_at?: string | null
           severity?: Database["public"]["Enums"]["risk_level"]
           status?: Database["public"]["Enums"]["incident_status"]
           title?: string
+          triaged_at?: string | null
           type?: Database["public"]["Enums"]["incident_type"]
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "incidents_assigned_to_personnel_id_fkey"
+            columns: ["assigned_to_personnel_id"]
+            isOneToOne: false
+            referencedRelation: "personnel"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "incidents_object_id_fkey"
             columns: ["object_id"]
@@ -851,6 +915,7 @@ export type Database = {
           end_lat: number | null
           end_lon: number | null
           id: string
+          object_id: string | null
           org_id: string
           personnel_id: string
           planned_end: string
@@ -869,6 +934,7 @@ export type Database = {
           end_lat?: number | null
           end_lon?: number | null
           id?: string
+          object_id?: string | null
           org_id: string
           personnel_id: string
           planned_end: string
@@ -887,6 +953,7 @@ export type Database = {
           end_lat?: number | null
           end_lon?: number | null
           id?: string
+          object_id?: string | null
           org_id?: string
           personnel_id?: string
           planned_end?: string
@@ -899,6 +966,13 @@ export type Database = {
           violations?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "shifts_object_id_fkey"
+            columns: ["object_id"]
+            isOneToOne: false
+            referencedRelation: "objects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "shifts_org_id_fkey"
             columns: ["org_id"]
