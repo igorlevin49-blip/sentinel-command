@@ -55,6 +55,60 @@ export type Database = {
           },
         ]
       }
+      contracts: {
+        Row: {
+          created_at: string
+          customer_org_id: string | null
+          end_date: string | null
+          id: string
+          number: string | null
+          org_id: string
+          start_date: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_org_id?: string | null
+          end_date?: string | null
+          id?: string
+          number?: string | null
+          org_id: string
+          start_date?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_org_id?: string | null
+          end_date?: string | null
+          id?: string
+          number?: string | null
+          org_id?: string
+          start_date?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contracts_customer_org_id_fkey"
+            columns: ["customer_org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contracts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       counterparties: {
         Row: {
           contract_no: string | null
@@ -86,6 +140,98 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispatch_rules: {
+        Row: {
+          action_json: Json | null
+          condition_json: Json | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          org_id: string
+          priority: number
+        }
+        Insert: {
+          action_json?: Json | null
+          condition_json?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          org_id: string
+          priority?: number
+        }
+        Update: {
+          action_json?: Json | null
+          condition_json?: Json | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          org_id?: string
+          priority?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispatch_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escalation_rules: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          org_id: string
+          sla_rule_id: string | null
+          target_role: string | null
+          trigger_after_s: number
+        }
+        Insert: {
+          action?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          org_id: string
+          sla_rule_id?: string | null
+          target_role?: string | null
+          trigger_after_s?: number
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          org_id?: string
+          sla_rule_id?: string | null
+          target_role?: string | null
+          trigger_after_s?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalation_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalation_rules_sla_rule_id_fkey"
+            columns: ["sla_rule_id"]
+            isOneToOne: false
+            referencedRelation: "sla_rules"
             referencedColumns: ["id"]
           },
         ]
@@ -320,6 +466,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          org_type: string
           type: Database["public"]["Enums"]["org_type"]
           updated_at: string
         }
@@ -327,6 +474,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          org_type?: string
           type?: Database["public"]["Enums"]["org_type"]
           updated_at?: string
         }
@@ -334,6 +482,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          org_type?: string
           type?: Database["public"]["Enums"]["org_type"]
           updated_at?: string
         }
@@ -575,6 +724,33 @@ export type Database = {
           },
         ]
       }
+      platform_roles: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          is_active: boolean
+          role: Database["public"]["Enums"]["platform_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          role: Database["public"]["Enums"]["platform_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          is_active?: boolean
+          role?: Database["public"]["Enums"]["platform_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           created_at: string
@@ -746,6 +922,60 @@ export type Database = {
           },
         ]
       }
+      sla_rules: {
+        Row: {
+          contract_id: string | null
+          created_at: string
+          id: string
+          incident_type: string | null
+          is_active: boolean
+          name: string
+          org_id: string
+          resolve_time_s: number
+          response_time_s: number
+          severity: string | null
+        }
+        Insert: {
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          incident_type?: string | null
+          is_active?: boolean
+          name: string
+          org_id: string
+          resolve_time_s?: number
+          response_time_s?: number
+          severity?: string | null
+        }
+        Update: {
+          contract_id?: string | null
+          created_at?: string
+          id?: string
+          incident_type?: string | null
+          is_active?: boolean
+          name?: string
+          org_id?: string
+          resolve_time_s?: number
+          response_time_s?: number
+          severity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sla_rules_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "contracts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sla_rules_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -756,12 +986,19 @@ export type Database = {
       current_user_id: { Args: never; Returns: string }
       guard_object_ids: { Args: never; Returns: string[] }
       guard_personnel_id: { Args: never; Returns: string }
+      has_platform_role: {
+        Args: { _role: Database["public"]["Enums"]["platform_role"] }
+        Returns: boolean
+      }
       has_role: {
         Args: { _role: Database["public"]["Enums"]["member_role"] }
         Returns: boolean
       }
+      is_platform_staff: { Args: never; Returns: boolean }
+      is_platform_super_admin: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
       user_org_id: { Args: never; Returns: string }
+      user_org_ids: { Args: never; Returns: string[] }
     }
     Enums: {
       acceptance_action: "accept" | "handover"
@@ -783,6 +1020,11 @@ export type Database = {
       org_type: "security_agency" | "internal_security"
       patrol_method: "gps" | "qr" | "nfc" | "manual"
       patrol_run_status: "pending" | "in_progress" | "completed" | "overdue"
+      platform_role:
+        | "platform_super_admin"
+        | "platform_admin"
+        | "platform_dispatcher"
+        | "platform_director"
       post_type: "static" | "checkpoint" | "mobile" | "kpp"
       risk_level: "low" | "medium" | "high" | "critical"
       shift_status: "scheduled" | "active" | "completed" | "missed"
@@ -934,6 +1176,12 @@ export const Constants = {
       org_type: ["security_agency", "internal_security"],
       patrol_method: ["gps", "qr", "nfc", "manual"],
       patrol_run_status: ["pending", "in_progress", "completed", "overdue"],
+      platform_role: [
+        "platform_super_admin",
+        "platform_admin",
+        "platform_dispatcher",
+        "platform_director",
+      ],
       post_type: ["static", "checkpoint", "mobile", "kpp"],
       risk_level: ["low", "medium", "high", "critical"],
       shift_status: ["scheduled", "active", "completed", "missed"],
