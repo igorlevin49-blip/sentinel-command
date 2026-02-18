@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { RoleProvider, useRole } from "@/contexts/RoleContext";
+import { PlatformAuthProvider, usePlatformAuth } from "@/contexts/PlatformAuthContext";
+import { PlatformGate } from "@/components/guard/PlatformGate";
 import { roleDefaultRoute } from "@/config/role-navigation";
 import { useEffect } from "react";
 import Login from "./pages/Login";
@@ -32,12 +34,13 @@ import Posts from "./pages/Posts";
 import Patrols from "./pages/Patrols";
 import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
-// Platform pages (super_admin)
+// Platform pages — guarded by PlatformGate (platform_roles)
 import PlatformRoles from "./pages/platform/PlatformRoles";
 import Contracts from "./pages/platform/Contracts";
 import SLARules from "./pages/platform/SLARules";
 import DispatchRules from "./pages/platform/DispatchRules";
 import EscalationRules from "./pages/platform/EscalationRules";
+import PlatformIncidents from "./pages/platform/PlatformIncidents";
 
 const queryClient = new QueryClient();
 
@@ -112,6 +115,25 @@ function DashboardRedirect() {
   return <Navigate to={roleDefaultRoute[role]} replace />;
 }
 
+/** All /platform/* routes are guarded by PlatformGate — no org_members role dependency */
+function PlatformRoutes() {
+  return (
+    <RequireAuth>
+      <PlatformGate>
+        <Routes>
+          <Route path="roles" element={<PlatformRoles />} />
+          <Route path="contracts" element={<Contracts />} />
+          <Route path="sla" element={<SLARules />} />
+          <Route path="dispatch" element={<DispatchRules />} />
+          <Route path="escalations" element={<EscalationRules />} />
+          <Route path="incidents" element={<PlatformIncidents />} />
+          <Route path="*" element={<Navigate to="roles" replace />} />
+        </Routes>
+      </PlatformGate>
+    </RequireAuth>
+  );
+}
+
 function AppRoutes() {
   const { role } = useRole();
 
@@ -124,18 +146,15 @@ function AppRoutes() {
       {/* Dashboard redirect */}
       <Route path="/dashboard" element={<RequireAuth><RoleGate><DashboardRedirect /></RoleGate></RequireAuth>} />
 
+      {/* ── Platform cabinet (source of truth: platform_roles) ── */}
+      <Route path="/platform/*" element={<PlatformRoutes />} />
+
       {/* Super Admin → Platform Dashboard */}
       {role === 'super_admin' && (
         <>
           <Route path="/super-admin" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
           <Route path="/super-admin/orgs" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
           <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
-          {/* Platform management pages */}
-          <Route path="/platform/roles" element={<RequireAuth><RoleGate><PlatformRoles /></RoleGate></RequireAuth>} />
-          <Route path="/platform/contracts" element={<RequireAuth><RoleGate><Contracts /></RoleGate></RequireAuth>} />
-          <Route path="/platform/sla" element={<RequireAuth><RoleGate><SLARules /></RoleGate></RequireAuth>} />
-          <Route path="/platform/dispatch" element={<RequireAuth><RoleGate><DispatchRules /></RoleGate></RequireAuth>} />
-          <Route path="/platform/escalations" element={<RequireAuth><RoleGate><EscalationRules /></RoleGate></RequireAuth>} />
         </>
       )}
 
@@ -229,7 +248,9 @@ const App = () => (
       <BrowserRouter>
         <AuthProvider>
           <RoleProvider>
-            <AppRoutes />
+            <PlatformAuthProvider>
+              <AppRoutes />
+            </PlatformAuthProvider>
           </RoleProvider>
         </AuthProvider>
       </BrowserRouter>
