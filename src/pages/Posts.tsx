@@ -9,6 +9,7 @@ interface Post {
   name: string;
   type: string;
   is_active: boolean;
+  description: string | null;
   object_id: string;
   objects?: { name: string } | null;
 }
@@ -26,20 +27,26 @@ export default function Posts() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetch() {
+    async function fetchPosts() {
       const { data, error } = await supabase
         .from('posts')
-        .select('id, name, type, is_active, object_id, objects(name)')
-        .order('created_at', { ascending: false });
+        .select('id, name, type, is_active, description, object_id, objects(name)')
+        .order('name', { ascending: true });
 
       if (error) {
-        setError(error.code === '42501' ? 'Нет доступа' : error.message);
+        console.error('[Posts] fetch error:', error);
+        setError(
+          error.code === '42501' || error.code === 'PGRST301'
+            ? 'Нет доступа'
+            : error.message
+        );
       } else {
+        console.debug('[Posts] loaded:', data?.length, 'records');
         setPosts((data as unknown as Post[]) ?? []);
       }
       setLoading(false);
     }
-    fetch();
+    fetchPosts();
   }, []);
 
   return (
