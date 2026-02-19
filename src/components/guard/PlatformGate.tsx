@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { ShieldOff, AlertTriangle } from 'lucide-react';
 import { usePlatformAuth } from '@/contexts/PlatformAuthContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 interface PlatformGateProps {
   children: React.ReactNode;
