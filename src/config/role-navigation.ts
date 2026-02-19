@@ -15,6 +15,7 @@ import {
   Settings,
   UserCog,
   Globe,
+  Activity,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/soms';
@@ -40,6 +41,7 @@ export const roleDefaultRoute: Record<UserRole, string> = {
 export const roleNavItems: Record<UserRole, NavItem[]> = {
   super_admin: [
     { title: 'Платформа', path: '/super-admin', icon: Globe },
+    { title: 'Трекинг проекта', path: '/super-admin/tracker', icon: Activity },
     { title: 'Организации', path: '/super-admin/orgs', icon: Building2 },
     { title: 'Пользователи', path: '/super-admin/users', icon: UserCog },
     { title: 'Роли платформы', path: '/super-admin/roles', icon: Shield },
