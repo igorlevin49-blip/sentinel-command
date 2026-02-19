@@ -1,4 +1,4 @@
-import { ShieldOff } from 'lucide-react';
+import { ShieldOff, AlertTriangle } from 'lucide-react';
 import { usePlatformAuth } from '@/contexts/PlatformAuthContext';
 
 interface PlatformGateProps {
@@ -7,11 +7,14 @@ interface PlatformGateProps {
 
 /**
  * Route guard for /platform/* routes.
- * Only platform staff (any active platform_role) passes through.
+ * Source of truth: public.platform_roles only — never org_members.
+ *
+ * State order: loading → error → no-access (RLS deny OR no role) → children
  */
 export function PlatformGate({ children }: PlatformGateProps) {
-  const { isPlatformStaff, loading } = usePlatformAuth();
+  const { isPlatformStaff, noAccess, loading, error } = usePlatformAuth();
 
+  // 1) Loading
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -20,14 +23,34 @@ export function PlatformGate({ children }: PlatformGateProps) {
     );
   }
 
-  if (!isPlatformStaff) {
+  // 2) Non-RLS error (network, unexpected DB error, etc.)
+  if (error) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4 px-4">
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-10 text-center shadow-sm max-w-md w-full">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+            <AlertTriangle className="h-8 w-8 text-destructive" />
+          </div>
+          <h2 className="text-lg font-semibold text-foreground">Ошибка загрузки</h2>
+          <p className="text-sm text-muted-foreground">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 3) No access — covers both:
+  //    (a) noAccess=true  → RLS explicitly denied (42501)
+  //    (b) isPlatformStaff=false → no platform_roles record
+  if (noAccess || !isPlatformStaff) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4 px-4">
         <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-10 text-center shadow-sm max-w-md w-full">
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
             <ShieldOff className="h-8 w-8 text-destructive" />
           </div>
-          <h2 className="text-lg font-semibold text-foreground">Нет доступа к платформенному кабинету</h2>
+          <h2 className="text-lg font-semibold text-foreground">
+            Нет доступа к платформенному кабинету
+          </h2>
           <p className="text-sm text-muted-foreground">
             Этот раздел доступен только пользователям с активной платформенной ролью
             (platform_super_admin, platform_admin, platform_dispatcher или platform_director).
@@ -40,5 +63,6 @@ export function PlatformGate({ children }: PlatformGateProps) {
     );
   }
 
+  // 4) Authorised
   return <>{children}</>;
 }
