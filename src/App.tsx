@@ -170,7 +170,7 @@ function AppRoutes() {
           <Route path="/super-admin/incidents" element={<RequireAuth><RoleGate><SuperAdminIncidents /></RoleGate></RequireAuth>} />
           <Route path="/super-admin/analytics" element={<RequireAuth><RoleGate><SuperAdminAnalytics /></RoleGate></RequireAuth>} />
           <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminAudit /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/roles" element={<RequireAuth><RoleGate><PlatformRoles /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/roles" element={<RequireAuth><RoleGate><SuperAdminRoles /></RoleGate></RequireAuth>} />
         </>
       )}
 
