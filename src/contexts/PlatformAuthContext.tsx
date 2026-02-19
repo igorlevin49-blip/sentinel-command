@@ -114,8 +114,19 @@ export function PlatformAuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const PLATFORM_AUTH_FALLBACK: PlatformAuthContextValue = {
+  platformRole: null,
+  isPlatformStaff: false,
+  isPlatformSA: false,
+  isPlatformAdmin: false,
+  isPlatformDispatcher: false,
+  loading: false,
+  error: null,
+  refresh: () => {},
+};
+
 export function usePlatformAuth(): PlatformAuthContextValue {
   const ctx = useContext(PlatformAuthContext);
-  if (!ctx) throw new Error('usePlatformAuth must be used within PlatformAuthProvider');
-  return ctx;
+  // Return safe defaults when used outside provider (e.g. in shared layout components)
+  return ctx ?? PLATFORM_AUTH_FALLBACK;
 }
