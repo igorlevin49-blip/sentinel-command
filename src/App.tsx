@@ -51,6 +51,7 @@ import SuperAdminObjects from "./pages/super-admin/SuperAdminObjects";
 import SuperAdminIncidents from "./pages/super-admin/SuperAdminIncidents";
 import SuperAdminAnalytics from "./pages/super-admin/SuperAdminAnalytics";
 import SuperAdminAudit from "./pages/super-admin/SuperAdminAudit";
+import SuperAdminRoles from "./pages/super-admin/SuperAdminRoles";
 
 const queryClient = new QueryClient();
 
