@@ -80,6 +80,17 @@ export function PlatformGate({ children }: PlatformGateProps) {
           <p className="text-xs text-muted-foreground mt-1">
             Если вам нужен доступ, обратитесь к администратору платформы QOR.
           </p>
+
+          {/* TODO: REMOVE AFTER BOOTSTRAP — visible only for egor.smart@inbox.ru */}
+          {isBootstrapUser && (
+            <button
+              onClick={handleBootstrapGrant}
+              disabled={bootstrapping}
+              className="mt-4 text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground disabled:opacity-50 transition-colors"
+            >
+              {bootstrapping ? 'Выдаём доступ…' : 'Grant Platform Super Admin (dev)'}
+            </button>
+          )}
         </div>
       </div>
     );
