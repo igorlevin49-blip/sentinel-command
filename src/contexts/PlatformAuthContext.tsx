@@ -110,11 +110,15 @@ export function PlatformAuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      // Pick highest-priority role (lowest number wins)
+      // Pick highest-priority role (lowest number wins).
+      // Unknown roles get priority 999 so they're never chosen over known ones.
       const best = data.reduce<PlatformRoleEnum | null>((acc, row) => {
         const r = row.role as PlatformRoleEnum;
+        const rPriority = ROLE_PRIORITY[r] ?? 999;
+        if (rPriority === 999) return acc; // skip unknown/unrecognised roles
         if (acc === null) return r;
-        return ROLE_PRIORITY[r] < ROLE_PRIORITY[acc] ? r : acc;
+        const accPriority = ROLE_PRIORITY[acc] ?? 999;
+        return rPriority < accPriority ? r : acc;
       }, null);
 
       setPlatformRole(best);
