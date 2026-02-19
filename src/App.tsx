@@ -159,12 +159,17 @@ function AppRoutes() {
       {/* ── Platform cabinet (source of truth: platform_roles) ── */}
       <Route path="/platform/*" element={<PlatformRoutes />} />
 
-      {/* Super Admin → Platform Dashboard */}
+      {/* Super Admin sub-pages */}
       {role === 'super_admin' && (
         <>
           <Route path="/super-admin" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/orgs" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/orgs" element={<RequireAuth><RoleGate><SuperAdminOrgs /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/users" element={<RequireAuth><RoleGate><SuperAdminUsers /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/objects" element={<RequireAuth><RoleGate><SuperAdminObjects /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/incidents" element={<RequireAuth><RoleGate><SuperAdminIncidents /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/analytics" element={<RequireAuth><RoleGate><SuperAdminAnalytics /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminAudit /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/roles" element={<RequireAuth><RoleGate><PlatformRoles /></RoleGate></RequireAuth>} />
         </>
       )}
 

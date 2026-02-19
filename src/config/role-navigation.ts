@@ -41,10 +41,11 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
   super_admin: [
     { title: 'Платформа', path: '/super-admin', icon: Globe },
     { title: 'Организации', path: '/super-admin/orgs', icon: Building2 },
-    { title: 'Пользователи', path: '/users', icon: UserCog },
-    { title: 'Инциденты', path: '/incidents', icon: AlertTriangle },
-    { title: 'Объекты', path: '/objects', icon: Building2 },
-    { title: 'Аналитика', path: '/analytics', icon: BarChart3 },
+    { title: 'Пользователи', path: '/super-admin/users', icon: UserCog },
+    { title: 'Роли платформы', path: '/super-admin/roles', icon: Shield },
+    { title: 'Инциденты', path: '/super-admin/incidents', icon: AlertTriangle },
+    { title: 'Объекты', path: '/super-admin/objects', icon: Building2 },
+    { title: 'Аналитика', path: '/super-admin/analytics', icon: BarChart3 },
     { title: 'Аудит', path: '/super-admin/audit', icon: FileText },
   ],
 
