@@ -19,7 +19,8 @@ export interface NavItem {
  * Displayed independently of org_members role.
  */
 export const platformNavItems: NavItem[] = [
-  { title: 'Роли платформы', path: '/platform/roles', icon: Shield },
+  // NOTE: "Роли платформы" is intentionally NOT listed here for super_admin;
+  // it lives at /super-admin/roles and is rendered via roleNavItems[super_admin].
   { title: 'Контракты', path: '/platform/contracts', icon: FileText },
   { title: 'SLA правила', path: '/platform/sla', icon: Clock },
   { title: 'Маршрутизация', path: '/platform/dispatch', icon: Route },
