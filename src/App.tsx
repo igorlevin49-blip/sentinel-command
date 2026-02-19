@@ -44,6 +44,13 @@ import SLARules from "./pages/platform/SLARules";
 import DispatchRules from "./pages/platform/DispatchRules";
 import EscalationRules from "./pages/platform/EscalationRules";
 import PlatformIncidents from "./pages/platform/PlatformIncidents";
+// Super Admin sub-pages (guarded by RequireAuth + RoleGate, role=super_admin)
+import SuperAdminOrgs from "./pages/super-admin/SuperAdminOrgs";
+import SuperAdminUsers from "./pages/super-admin/SuperAdminUsers";
+import SuperAdminObjects from "./pages/super-admin/SuperAdminObjects";
+import SuperAdminIncidents from "./pages/super-admin/SuperAdminIncidents";
+import SuperAdminAnalytics from "./pages/super-admin/SuperAdminAnalytics";
+import SuperAdminAudit from "./pages/super-admin/SuperAdminAudit";
 
 const queryClient = new QueryClient();
 
