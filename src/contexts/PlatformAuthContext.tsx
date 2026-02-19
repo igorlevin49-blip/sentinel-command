@@ -60,7 +60,12 @@ export function PlatformAuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
 
       if (err) {
-        setError(err.message);
+        // 42501 = RLS / no access — treat as "no platform role", don't crash
+        if (err.code === '42501' || err.message?.includes('42501')) {
+          setPlatformRole(null);
+        } else {
+          setError(err.message);
+        }
         setLoading(false);
         return;
       }
