@@ -15,7 +15,26 @@ interface PlatformGateProps {
  * State order: loading → error → no-access (RLS deny OR no role) → children
  */
 export function PlatformGate({ children }: PlatformGateProps) {
-  const { isPlatformStaff, noAccess, loading, error } = usePlatformAuth();
+  const { isPlatformStaff, noAccess, loading, error, refresh } = usePlatformAuth();
+  const { user } = useAuth();
+  const [bootstrapping, setBootstrapping] = useState(false);
+
+  const BOOTSTRAP_EMAIL = 'egor.smart@inbox.ru';
+  const isBootstrapUser = user?.email === BOOTSTRAP_EMAIL;
+
+  // TODO: REMOVE AFTER BOOTSTRAP
+  async function handleBootstrapGrant() {
+    if (!user || !isBootstrapUser) return;
+    setBootstrapping(true);
+    await supabase
+      .from('platform_roles')
+      .upsert(
+        { user_id: user.id, role: 'platform_super_admin', is_active: true },
+        { onConflict: 'user_id,role' }
+      );
+    setBootstrapping(false);
+    refresh();
+  }
 
   // 1) Loading
   if (loading) {
