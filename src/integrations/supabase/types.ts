@@ -144,6 +144,179 @@ export type Database = {
           },
         ]
       }
+      delivery_alerts: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          item_id: string | null
+          message: string
+          resolved_at: string | null
+          severity: string
+          type: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          item_id?: string | null
+          message: string
+          resolved_at?: string | null
+          severity: string
+          type: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          item_id?: string | null
+          message?: string
+          resolved_at?: string | null
+          severity?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_alerts_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_checks: {
+        Row: {
+          evidence_text: string | null
+          evidence_url: string | null
+          id: string
+          is_done: boolean
+          item_id: string
+          kind: string
+          last_verified_at: string | null
+          title: string
+        }
+        Insert: {
+          evidence_text?: string | null
+          evidence_url?: string | null
+          id?: string
+          is_done?: boolean
+          item_id: string
+          kind: string
+          last_verified_at?: string | null
+          title: string
+        }
+        Update: {
+          evidence_text?: string | null
+          evidence_url?: string | null
+          id?: string
+          is_done?: boolean
+          item_id?: string
+          kind?: string
+          last_verified_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_checks_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_github_links: {
+        Row: {
+          id: string
+          issue_number: number | null
+          item_id: string
+          pr_number: number | null
+          repo: string
+          url: string | null
+        }
+        Insert: {
+          id?: string
+          issue_number?: number | null
+          item_id: string
+          pr_number?: number | null
+          repo: string
+          url?: string | null
+        }
+        Update: {
+          id?: string
+          issue_number?: number | null
+          item_id?: string
+          pr_number?: number | null
+          repo?: string
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_github_links_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      delivery_items: {
+        Row: {
+          area: string
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          owner: string | null
+          parent_id: string | null
+          priority: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          area: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          owner?: string | null
+          parent_id?: string | null
+          priority: string
+          status: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          area?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          owner?: string | null
+          parent_id?: string | null
+          priority?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "delivery_items_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dispatch_rules: {
         Row: {
           action_json: Json | null
