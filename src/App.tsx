@@ -51,6 +51,7 @@ import SuperAdminObjects from "./pages/super-admin/SuperAdminObjects";
 import SuperAdminIncidents from "./pages/super-admin/SuperAdminIncidents";
 import SuperAdminAnalytics from "./pages/super-admin/SuperAdminAnalytics";
 import SuperAdminAudit from "./pages/super-admin/SuperAdminAudit";
+import SuperAdminRoles from "./pages/super-admin/SuperAdminRoles";
 
 const queryClient = new QueryClient();
 
@@ -169,7 +170,7 @@ function AppRoutes() {
           <Route path="/super-admin/incidents" element={<RequireAuth><RoleGate><SuperAdminIncidents /></RoleGate></RequireAuth>} />
           <Route path="/super-admin/analytics" element={<RequireAuth><RoleGate><SuperAdminAnalytics /></RoleGate></RequireAuth>} />
           <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminAudit /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/roles" element={<RequireAuth><RoleGate><PlatformRoles /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin/roles" element={<RequireAuth><RoleGate><SuperAdminRoles /></RoleGate></RequireAuth>} />
         </>
       )}
 
