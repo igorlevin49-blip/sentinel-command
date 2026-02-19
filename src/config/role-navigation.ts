@@ -15,6 +15,7 @@ import {
   Settings,
   UserCog,
   Globe,
+  Activity,
   type LucideIcon,
 } from 'lucide-react';
 import type { UserRole } from '@/types/soms';
