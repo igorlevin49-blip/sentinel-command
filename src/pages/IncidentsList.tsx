@@ -28,7 +28,6 @@ const typeLabels: Record<string, string> = {
 
 interface IncidentForm {
   object_id: string;
-  post_id: string;
   title: string;
   description: string;
   severity: string;
@@ -36,7 +35,7 @@ interface IncidentForm {
 }
 
 const defaultForm: IncidentForm = {
-  object_id: '', post_id: '', title: '', description: '', severity: 'medium', type: 'alarm',
+  object_id: '', title: '', description: '', severity: 'medium', type: 'alarm',
 };
 
 export default function IncidentsListPage() {
