@@ -4,10 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RoleContextValue {
-  /** Effective role (viewAs if set, otherwise actual) */
-  role: UserRole;
-  /** Real role from DB — never changes */
-  actualRole: UserRole;
+  /** Effective role (viewAs if set, otherwise actual). Null if no org membership. */
+  role: UserRole | null;
+  /** Real role from DB — null if no org membership */
+  actualRole: UserRole | null;
   /** True when super_admin is viewing as another role */
   isDemoView: boolean;
   /** Set viewAs role (super_admin only). Pass null to exit demo. */
