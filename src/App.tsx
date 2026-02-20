@@ -9,7 +9,7 @@ import { PlatformAuthProvider, usePlatformAuth } from '@/contexts/PlatformAuthCo
 import { ActiveOrgProvider } from "@/contexts/ActiveOrgContext";
 import { PlatformGate } from "@/components/guard/PlatformGate";
 import { roleDefaultRoute } from "@/config/role-navigation";
-import { useEffect } from "react";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
