@@ -57,8 +57,6 @@ export default function IncidentsListPage() {
     type: filters.type || undefined,
   });
   const { data: objects } = useOrgObjects();
-  const [selectedObj, setSelectedObj] = useState('');
-  const { data: posts } = useOrgPosts(selectedObj || undefined);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<IncidentForm>(defaultForm);
   const [saving, setSaving] = useState(false);
