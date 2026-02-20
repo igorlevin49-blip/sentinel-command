@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { RoleProvider, useRole } from "@/contexts/RoleContext";
-import { PlatformAuthProvider } from "@/contexts/PlatformAuthContext";
+import { PlatformAuthProvider, usePlatformAuth } from '@/contexts/PlatformAuthContext';
 import { ActiveOrgProvider } from "@/contexts/ActiveOrgContext";
 import { PlatformGate } from "@/components/guard/PlatformGate";
 import { roleDefaultRoute } from "@/config/role-navigation";
