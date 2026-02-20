@@ -50,8 +50,8 @@ const typeLabels: Record<IncidentType, string> = {
   alarm: 'Тревога', violation: 'Нарушение', event: 'Событие', fraud: 'Мошенничество',
 };
 
-/* ── Transition rules (platform-specific, NOT org TRANSITIONS) ── */
-const ALLOWED_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
+/* ── Platform-specific transition rules (NOT org TRANSITIONS) ── */
+const PLATFORM_ALLOWED_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
   created: ['accepted'],
   accepted: ['in_progress'],
   in_progress: ['resolved'],
@@ -59,17 +59,18 @@ const ALLOWED_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
   closed: [],
 };
 
-/** Map status → which timestamp to set */
-const TIMESTAMP_FOR_STATUS: Partial<Record<IncidentStatus, string>> = {
-  accepted: 'accepted_at',
-  resolved: 'resolved_at',
-  closed: 'closed_at',
+/** Map status → which timestamp(s) to set */
+const TIMESTAMP_FOR_STATUS: Partial<Record<IncidentStatus, string[]>> = {
+  accepted: ['accepted_at'],
+  in_progress: ['en_route_at'],
+  resolved: ['resolved_at'],
+  closed: ['closed_at'],
 };
 
 const transitionLabels: Record<IncidentStatus, string> = {
   created: 'Создать', // unused as target
   accepted: 'Принять',
-  in_progress: 'Взять в работу',
+  in_progress: 'В пути',
   resolved: 'Решить',
   closed: 'Закрыть',
 };
@@ -136,8 +137,11 @@ export default function PlatformIncidents() {
     setActionLoading(true);
     setActionError(null);
     const update: Record<string, string> = { status: nextStatus };
-    const tsField = TIMESTAMP_FOR_STATUS[nextStatus];
-    if (tsField) update[tsField] = new Date().toISOString();
+    const tsFields = TIMESTAMP_FOR_STATUS[nextStatus];
+    if (tsFields) {
+      const now = new Date().toISOString();
+      tsFields.forEach((f) => { update[f] = now; });
+    }
 
     const { error: err } = await supabase.from('incidents').update(update).eq('id', inc.id);
     if (err) {
@@ -170,7 +174,7 @@ export default function PlatformIncidents() {
   }
 
   const filterActive = filterStatus || filterSeverity || filterType;
-  const nextStatuses = selected ? ALLOWED_TRANSITIONS[selected.status] : [];
+  const nextStatuses = selected ? PLATFORM_ALLOWED_TRANSITIONS[selected.status] : [];
 
   return (
     <AppLayout title="Очередь ЦОУ — Инциденты">
