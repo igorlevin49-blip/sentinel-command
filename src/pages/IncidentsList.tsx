@@ -176,18 +176,7 @@ export default function IncidentsListPage() {
                   {(objects ?? []).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Пост (необязательно)</label>
-                <select
-                  className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm focus:border-primary focus:outline-none"
-                  value={form.post_id}
-                  onChange={e => setForm(f => ({ ...f, post_id: e.target.value }))}
-                  disabled={!form.object_id}
-                >
-                  <option value="">— не указан —</option>
-                  {(posts ?? []).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
-              </div>
+              {/* Post selector removed — incidents table has no post_id FK */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium mb-1">Тип</label>
