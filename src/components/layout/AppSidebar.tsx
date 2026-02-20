@@ -131,7 +131,9 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                 Платформа QOR
               </p>
             )}
-            {platformNavItems.map((item) => {
+            {platformNavItems
+              .filter((item) => !item.visibleTo || (platformRole && item.visibleTo.includes(platformRole)))
+              .map((item) => {
               const isActive = location.pathname === item.path;
               return (
                 <NavLink
