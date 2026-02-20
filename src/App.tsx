@@ -130,6 +130,14 @@ function RoleGate({ children }: { children: React.ReactNode }) {
 
 function DashboardRedirect() {
   const { role } = useRole();
+  const { isPlatformStaff } = usePlatformAuth();
+  // If user has no org role but is platform staff, redirect to platform
+  if (!role && isPlatformStaff) {
+    return <Navigate to="/platform/contracts" replace />;
+  }
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
   return <Navigate to={roleDefaultRoute[role]} replace />;
 }
 
