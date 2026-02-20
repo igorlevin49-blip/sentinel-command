@@ -44,6 +44,7 @@ import SLARules from "./pages/platform/SLARules";
 import DispatchRules from "./pages/platform/DispatchRules";
 import EscalationRules from "./pages/platform/EscalationRules";
 import PlatformIncidents from "./pages/platform/PlatformIncidents";
+import PlatformUAT from "./pages/platform/PlatformUAT";
 // Super Admin sub-pages (guarded by RequireAuth + RoleGate, role=super_admin)
 import SuperAdminOrgs from "./pages/super-admin/SuperAdminOrgs";
 import SuperAdminUsers from "./pages/super-admin/SuperAdminUsers";
@@ -163,6 +164,7 @@ function PlatformRoutes() {
           <Route path="dispatch" element={<DispatchRules />} />
           <Route path="escalations" element={<EscalationRules />} />
           <Route path="incidents" element={<PlatformIncidents />} />
+          <Route path="uat" element={<PlatformUAT />} />
           <Route path="*" element={<Navigate to="roles" replace />} />
         </Routes>
       </PlatformGate>
