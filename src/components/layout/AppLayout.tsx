@@ -66,7 +66,7 @@ export function AppLayout({ children, title }: AppLayoutProps) {
             {isDemoView && (
               <Badge variant="warning" className="flex items-center gap-1.5">
                 <Eye className="h-3 w-3" />
-                DEMO: {roleLabels[role]}
+                DEMO: {role ? roleLabels[role] : '—'}
                 <button
                   onClick={handleExitDemo}
                   className="ml-1 rounded-full p-0.5 hover:bg-warning-foreground/20"

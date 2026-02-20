@@ -65,7 +65,7 @@ export const roleNavItems: Record<UserRole, NavItem[]> = {
     { title: 'Дашборд', path: '/admin', icon: LayoutDashboard },
     { title: 'Объекты', path: '/objects', icon: Building2 },
     { title: 'Посты', path: '/posts', icon: Settings },
-    { title: 'Маршруты', path: '/routes', icon: Route },
+    { title: 'Обходы', path: '/patrols', icon: Route },
     { title: 'Персонал', path: '/personnel', icon: Users },
     { title: 'Смены', path: '/shifts', icon: Clock },
     { title: 'Инциденты', path: '/incidents', icon: AlertTriangle },

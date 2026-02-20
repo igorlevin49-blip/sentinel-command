@@ -4,10 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface RoleContextValue {
-  /** Effective role (viewAs if set, otherwise actual) */
-  role: UserRole;
-  /** Real role from DB — never changes */
-  actualRole: UserRole;
+  /** Effective role (viewAs if set, otherwise actual). Null if no org membership. */
+  role: UserRole | null;
+  /** Real role from DB — null if no org membership */
+  actualRole: UserRole | null;
   /** True when super_admin is viewing as another role */
   isDemoView: boolean;
   /** Set viewAs role (super_admin only). Pass null to exit demo. */
@@ -36,7 +36,7 @@ const IS_DEV = import.meta.env.DEV;
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [dbRole, setDbRole] = useState<UserRole>('dispatcher');
+  const [dbRole, setDbRole] = useState<UserRole | null>(null);
   const [viewAsRole, setViewAsRoleState] = useState<UserRole | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
   const [roleError, setRoleError] = useState<string | null>(null);
@@ -72,7 +72,11 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       }
 
       if (!data) {
-        setRoleError('no_role');
+        // No org membership — not fatal; user may have platform-only access.
+        // Set a sentinel role; PlatformGate handles platform access separately.
+        setDbRole(null as any);
+        setRoleError(null);
+        setUserName(user!.email ?? '');
         setRoleLoading(false);
         return;
       }
@@ -104,7 +108,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const profile = roleProfiles[effectiveRole];
+  const profile = effectiveRole ? roleProfiles[effectiveRole] : { name: 'Пользователь', title: 'Без роли' };
 
   return (
     <RoleContext.Provider

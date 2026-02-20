@@ -2,14 +2,14 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { RoleProvider, useRole } from "@/contexts/RoleContext";
-import { PlatformAuthProvider } from "@/contexts/PlatformAuthContext";
+import { PlatformAuthProvider, usePlatformAuth } from '@/contexts/PlatformAuthContext';
 import { ActiveOrgProvider } from "@/contexts/ActiveOrgContext";
 import { PlatformGate } from "@/components/guard/PlatformGate";
 import { roleDefaultRoute } from "@/config/role-navigation";
-import { useEffect } from "react";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -93,15 +93,7 @@ function PublicOnly({ children }: { children: React.ReactNode }) {
 }
 
 function RoleGate({ children }: { children: React.ReactNode }) {
-  const { roleLoading, roleError } = useRole();
-  const { signOut } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (roleError === 'no_role') {
-      signOut().then(() => navigate('/login?error=no_role', { replace: true }));
-    }
-  }, [roleError, signOut, navigate]);
+  const { roleLoading, roleError, role } = useRole();
 
   if (roleLoading) {
     return (
@@ -113,8 +105,22 @@ function RoleGate({ children }: { children: React.ReactNode }) {
 
   if (roleError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4 px-4">
+        <div className="rounded-xl border border-border bg-card p-10 text-center max-w-md">
+          <p className="text-sm text-muted-foreground">{roleError}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No org role — user may be platform-only; don't render org pages
+  if (!role) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4 px-4">
+        <div className="rounded-xl border border-border bg-card p-10 text-center max-w-md">
+          <p className="text-sm font-medium text-foreground">Нет организационной роли</p>
+          <p className="text-xs text-muted-foreground mt-1">У вас нет привязки к организации. Если у вас есть платформенный доступ, используйте разделы платформы.</p>
+        </div>
       </div>
     );
   }
@@ -124,6 +130,14 @@ function RoleGate({ children }: { children: React.ReactNode }) {
 
 function DashboardRedirect() {
   const { role } = useRole();
+  const { isPlatformStaff } = usePlatformAuth();
+  // If user has no org role but is platform staff, redirect to platform
+  if (!role && isPlatformStaff) {
+    return <Navigate to="/platform/contracts" replace />;
+  }
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
   return <Navigate to={roleDefaultRoute[role]} replace />;
 }
 
@@ -148,6 +162,7 @@ function PlatformRoutes() {
 
 function AppRoutes() {
   const { role } = useRole();
+  const { isPlatformStaff } = usePlatformAuth();
 
   return (
     <Routes>
@@ -156,23 +171,23 @@ function AppRoutes() {
       <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
 
       {/* Dashboard redirect */}
-      <Route path="/dashboard" element={<RequireAuth><RoleGate><DashboardRedirect /></RoleGate></RequireAuth>} />
+      <Route path="/dashboard" element={<RequireAuth><DashboardRedirect /></RequireAuth>} />
 
       {/* ── Platform cabinet (source of truth: platform_roles) ── */}
       <Route path="/platform/*" element={<PlatformRoutes />} />
 
-      {/* Super Admin sub-pages */}
-      {role === 'super_admin' && (
+      {/* Super Admin sub-pages — accessible to org super_admin OR platform staff */}
+      {(role === 'super_admin' || isPlatformStaff) && (
         <>
-          <Route path="/super-admin" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/tracker" element={<RequireAuth><RoleGate><SuperAdminTracker /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/orgs" element={<RequireAuth><RoleGate><SuperAdminOrgs /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/users" element={<RequireAuth><RoleGate><SuperAdminUsers /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/objects" element={<RequireAuth><RoleGate><SuperAdminObjects /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/incidents" element={<RequireAuth><RoleGate><SuperAdminIncidents /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/analytics" element={<RequireAuth><RoleGate><SuperAdminAnalytics /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminAudit /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/roles" element={<RequireAuth><RoleGate><SuperAdminRoles /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin" element={<RequireAuth><SuperAdminDashboard /></RequireAuth>} />
+          <Route path="/super-admin/tracker" element={<RequireAuth><SuperAdminTracker /></RequireAuth>} />
+          <Route path="/super-admin/orgs" element={<RequireAuth><SuperAdminOrgs /></RequireAuth>} />
+          <Route path="/super-admin/users" element={<RequireAuth><SuperAdminUsers /></RequireAuth>} />
+          <Route path="/super-admin/objects" element={<RequireAuth><SuperAdminObjects /></RequireAuth>} />
+          <Route path="/super-admin/incidents" element={<RequireAuth><SuperAdminIncidents /></RequireAuth>} />
+          <Route path="/super-admin/analytics" element={<RequireAuth><SuperAdminAnalytics /></RequireAuth>} />
+          <Route path="/super-admin/audit" element={<RequireAuth><SuperAdminAudit /></RequireAuth>} />
+          <Route path="/super-admin/roles" element={<RequireAuth><SuperAdminRoles /></RequireAuth>} />
         </>
       )}
 

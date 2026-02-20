@@ -59,7 +59,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
   const location = useLocation();
   const { role } = useRole();
   const { isPlatformStaff, platformRole } = usePlatformAuth();
-  const navItems = roleNavItems[role];
+  const navItems = role ? roleNavItems[role] : [];
 
   // Badge: only for super_admin (platform staff)
   const alertCount = useActiveAlertCount(isPlatformStaff);
@@ -92,7 +92,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
       </div>
 
       {/* Role indicator */}
-      {!collapsed && (
+      {!collapsed && role && (
         <div className="border-b border-sidebar-border px-4 py-2.5 space-y-1">
           <div className="flex items-center justify-between">
             <span className={cn(
@@ -170,8 +170,8 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
           </>
         )}
 
-        {/* Org / role nav — hide when on /platform and user only has platform access */}
-        {navItems.map((item) => {
+      {/* Org / role nav — hide if user has no org role */}
+        {role && navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const isTrackerItem = item.path === '/super-admin/tracker';
           return (
