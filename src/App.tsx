@@ -136,7 +136,17 @@ function DashboardRedirect() {
     return <Navigate to="/platform/contracts" replace />;
   }
   if (!role) {
-    return <Navigate to="/login" replace />;
+    // User is authenticated but has no org role and no platform role — show dead-end screen
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4 px-4">
+        <div className="rounded-xl border border-border bg-card p-10 text-center max-w-md">
+          <p className="text-sm font-medium text-foreground">Нет доступа</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            У вас нет привязки к организации и нет платформенной роли. Обратитесь к администратору QOR для получения доступа.
+          </p>
+        </div>
+      </div>
+    );
   }
   return <Navigate to={roleDefaultRoute[role]} replace />;
 }
