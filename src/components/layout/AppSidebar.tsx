@@ -59,7 +59,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
   const location = useLocation();
   const { role } = useRole();
   const { isPlatformStaff, platformRole } = usePlatformAuth();
-  const navItems = roleNavItems[role];
+  const navItems = role ? roleNavItems[role] : [];
 
   // Badge: only for super_admin (platform staff)
   const alertCount = useActiveAlertCount(isPlatformStaff);
