@@ -108,7 +108,7 @@ export function RoleProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const profile = roleProfiles[effectiveRole];
+  const profile = effectiveRole ? roleProfiles[effectiveRole] : { name: 'Пользователь', title: 'Без роли' };
 
   return (
     <RoleContext.Provider
