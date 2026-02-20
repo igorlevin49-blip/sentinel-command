@@ -174,7 +174,7 @@ export default function PlatformIncidents() {
   }
 
   const filterActive = filterStatus || filterSeverity || filterType;
-  const nextStatuses = selected ? ALLOWED_TRANSITIONS[selected.status] : [];
+  const nextStatuses = selected ? PLATFORM_ALLOWED_TRANSITIONS[selected.status] : [];
 
   return (
     <AppLayout title="Очередь ЦОУ — Инциденты">
