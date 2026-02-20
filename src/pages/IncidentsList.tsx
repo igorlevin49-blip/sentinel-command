@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ErrorDisplay } from '@/components/ui/error-display';
-import { useOrgIncidents, useOrgObjects, useOrgPersonnel, useOrgPosts } from '@/hooks/use-org-data';
+import { useOrgIncidents, useOrgObjects, useOrgPersonnel } from '@/hooks/use-org-data';
 import { useActiveOrg } from '@/contexts/ActiveOrgContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
