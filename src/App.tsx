@@ -93,15 +93,7 @@ function PublicOnly({ children }: { children: React.ReactNode }) {
 }
 
 function RoleGate({ children }: { children: React.ReactNode }) {
-  const { roleLoading, roleError } = useRole();
-  const { signOut } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (roleError === 'no_role') {
-      signOut().then(() => navigate('/login?error=no_role', { replace: true }));
-    }
-  }, [roleError, signOut, navigate]);
+  const { roleLoading, roleError, role } = useRole();
 
   if (roleLoading) {
     return (
@@ -113,8 +105,22 @@ function RoleGate({ children }: { children: React.ReactNode }) {
 
   if (roleError) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4 px-4">
+        <div className="rounded-xl border border-border bg-card p-10 text-center max-w-md">
+          <p className="text-sm text-muted-foreground">{roleError}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // No org role — user may be platform-only; don't render org pages
+  if (!role) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background gap-4 px-4">
+        <div className="rounded-xl border border-border bg-card p-10 text-center max-w-md">
+          <p className="text-sm font-medium text-foreground">Нет организационной роли</p>
+          <p className="text-xs text-muted-foreground mt-1">У вас нет привязки к организации. Если у вас есть платформенный доступ, используйте разделы платформы.</p>
+        </div>
       </div>
     );
   }
