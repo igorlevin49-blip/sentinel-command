@@ -50,8 +50,8 @@ const typeLabels: Record<IncidentType, string> = {
   alarm: 'Тревога', violation: 'Нарушение', event: 'Событие', fraud: 'Мошенничество',
 };
 
-/* ── Transition rules (platform-specific, NOT org TRANSITIONS) ── */
-const ALLOWED_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
+/* ── Platform-specific transition rules (NOT org TRANSITIONS) ── */
+const PLATFORM_ALLOWED_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
   created: ['accepted'],
   accepted: ['in_progress'],
   in_progress: ['resolved'],
