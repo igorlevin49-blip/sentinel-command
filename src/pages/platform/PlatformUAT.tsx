@@ -23,7 +23,7 @@ interface RequestLog {
 }
 
 const STATUS_ICON = {
-  pass: <CheckCircle2 className="h-4 w-4 text-green-500" />,
+  pass: <CheckCircle2 className="h-4 w-4 text-success" />,
   fail: <XCircle className="h-4 w-4 text-destructive" />,
   running: <Loader2 className="h-4 w-4 animate-spin text-primary" />,
   pending: <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30" />,
