@@ -168,7 +168,7 @@ export default function IncidentsListPage() {
                 <select
                   className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm focus:border-primary focus:outline-none"
                   value={form.object_id}
-                  onChange={e => { setSelectedObj(e.target.value); setForm(f => ({ ...f, object_id: e.target.value, post_id: '' })); }}
+                  onChange={e => setForm(f => ({ ...f, object_id: e.target.value }))}
                 >
                   <option value="">— выберите объект —</option>
                   {(objects ?? []).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
