@@ -158,11 +158,11 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
               );
             })}
 
-            {/* Separator between platform and org nav */}
-            {!isOnPlatform && !collapsed && (
+            {/* Separator between platform and org nav — only if user has org role and NOT on /platform */}
+            {role && !isOnPlatform && !collapsed && (
               <div className="my-2 border-t border-sidebar-border" />
             )}
-            {!isOnPlatform && !collapsed && (
+            {role && !isOnPlatform && !collapsed && (
               <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
                 Организация
               </p>
