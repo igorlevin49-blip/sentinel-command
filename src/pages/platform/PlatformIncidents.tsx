@@ -59,11 +59,12 @@ const PLATFORM_ALLOWED_TRANSITIONS: Record<IncidentStatus, IncidentStatus[]> = {
   closed: [],
 };
 
-/** Map status → which timestamp to set */
-const TIMESTAMP_FOR_STATUS: Partial<Record<IncidentStatus, string>> = {
-  accepted: 'accepted_at',
-  resolved: 'resolved_at',
-  closed: 'closed_at',
+/** Map status → which timestamp(s) to set */
+const TIMESTAMP_FOR_STATUS: Partial<Record<IncidentStatus, string[]>> = {
+  accepted: ['accepted_at'],
+  in_progress: ['en_route_at'],
+  resolved: ['resolved_at'],
+  closed: ['closed_at'],
 };
 
 const transitionLabels: Record<IncidentStatus, string> = {
