@@ -10,7 +10,7 @@ const DRAFT_PREFIX = 'soms_draft_';
  * Usage:
  *   const [form, setForm, clearDraft] = useFormDraft('contracts-new', emptyForm);
  */
-export function useFormDraft<T extends Record<string, unknown>>(
+export function useFormDraft<T extends object>(
   draftKey: string,
   defaultValue: T,
 ): [T, (updater: T | ((prev: T) => T)) => void, () => void] {
