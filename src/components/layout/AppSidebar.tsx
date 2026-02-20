@@ -92,7 +92,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
       </div>
 
       {/* Role indicator */}
-      {!collapsed && (
+      {!collapsed && role && (
         <div className="border-b border-sidebar-border px-4 py-2.5 space-y-1">
           <div className="flex items-center justify-between">
             <span className={cn(
