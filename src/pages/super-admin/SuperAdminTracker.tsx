@@ -16,6 +16,8 @@ import {
 } from '@/hooks/useDeliveryTracker';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useDrawerState, useFormVisibility } from '@/hooks/useDrawerState';
+import { useFormDraft, useUnsavedChangesWarning } from '@/hooks/useFormDraft';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -487,15 +489,21 @@ export default function SuperAdminTracker() {
   const { items, loading, error, fetchItems, createItem, updateItem } = useDeliveryItems();
   const { alerts, loading: alertsLoading, activeCount, fetchAlerts, createAlert, resolveAlert } = useDeliveryAlerts();
 
+  // URL-synced drawer state
+  const { isOpen: drawerOpen, openId: drawerItemKey, open: openDrawer, close: closeDrawer } = useDrawerState('task');
+  const { isVisible: showCreateForm, show: showCreate, hide: hideCreate } = useFormVisibility('newTask');
+
+  // Form draft for the create form
+  const [form, setForm, clearFormDraft] = useFormDraft<ItemFormData>('tracker-create', emptyForm);
+  const formIsDirty = JSON.stringify(form) !== JSON.stringify(emptyForm);
+  useUnsavedChangesWarning(formIsDirty);
+
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState<ItemStatus | 'all'>('all');
   const [filterArea, setFilterArea] = useState<ItemArea | 'all'>('all');
   const [filterPriority, setFilterPriority] = useState<ItemPriority | 'all'>('all');
   const [filterType, setFilterType] = useState<ItemType | 'all'>('all');
   const [onlyWithAlerts, setOnlyWithAlerts] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<DeliveryItem | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [form, setForm] = useState<ItemFormData>(emptyForm);
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [sortKey, setSortKey] = useState<'priority' | 'status' | 'updated_at' | 'key'>('priority');
@@ -505,6 +513,13 @@ export default function SuperAdminTracker() {
   }, [fetchItems, fetchAlerts]);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  // Resolve the drawer item from the URL param (match by key or id)
+  const itemMap = new Map(items.map(i => [i.id, i]));
+  const itemByKey = new Map(items.map(i => [i.key, i]));
+  const selectedItem = drawerItemKey
+    ? (itemByKey.get(drawerItemKey) ?? itemMap.get(drawerItemKey) ?? null)
+    : null;
 
   if (!isPlatformStaff) return <NoAccess />;
 
@@ -516,7 +531,6 @@ export default function SuperAdminTracker() {
       alertsByItem.get(a.item_id)!.push(a);
     }
   });
-  const itemMap = new Map(items.map(i => [i.id, i]));
 
   // KPIs
   const total = items.length;
@@ -553,14 +567,19 @@ export default function SuperAdminTracker() {
       setFormError(err);
     } else {
       toast({ title: 'Задача создана', description: form.key });
-      setForm(emptyForm);
-      setShowCreateForm(false);
-      // Check auto-alerts for new item
+      clearFormDraft();
+      hideCreate();
       const newItem = { ...form, id: '', created_at: '', updated_at: '', description: form.description || null, owner: form.owner || null, parent_id: null } as DeliveryItem;
       await ensureAutoAlerts(newItem);
       refresh();
     }
     setSaving(false);
+  }
+
+  function handleCancelCreate() {
+    clearFormDraft();
+    hideCreate();
+    setFormError(null);
   }
 
   async function handleSaveItem(id: string, patch: Partial<DeliveryItem>) {
@@ -569,7 +588,6 @@ export default function SuperAdminTracker() {
       toast({ title: 'Ошибка сохранения', description: err, variant: 'destructive' });
     } else {
       toast({ title: 'Сохранено' });
-      // Check auto-alerts after update
       const updated = { ...itemMap.get(id)!, ...patch };
       await ensureAutoAlerts(updated);
       refresh();
@@ -577,7 +595,6 @@ export default function SuperAdminTracker() {
   }
 
   async function handleNeedsGithub(item: DeliveryItem) {
-    // Find linked GitHub URL if any
     const { data: links } = await supabase.from('delivery_github_links').select('url,issue_number,pr_number').eq('item_id', item.id).limit(1);
     const link = links?.[0];
     const actionUrl = link?.url ?? (link?.issue_number ? `https://github.com/issues/${link.issue_number}` : null);
@@ -624,7 +641,7 @@ export default function SuperAdminTracker() {
             </p>
           </div>
           {!isReadOnly && (
-            <button onClick={() => setShowCreateForm(v => !v)}
+            <button onClick={() => showCreateForm ? handleCancelCreate() : showCreate()}
               className="flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors shrink-0">
               <Plus className="h-4 w-4" />
               {showCreateForm ? 'Скрыть форму' : 'Создать задачу'}
@@ -698,7 +715,7 @@ export default function SuperAdminTracker() {
                 className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors">
                 {saving ? 'Создание…' : 'Создать'}
               </button>
-              <button type="button" onClick={() => { setShowCreateForm(false); setForm(emptyForm); setFormError(null); }}
+              <button type="button" onClick={handleCancelCreate}
                 className="rounded-md border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors">
                 Отмена
               </button>
@@ -775,7 +792,7 @@ export default function SuperAdminTracker() {
                           hasCritical ? 'bg-destructive/5 border-l-2 border-l-destructive' :
                           hasAlerts ? 'bg-warning/5 border-l-2 border-l-warning' : ''
                         }`}
-                        onClick={() => setSelectedItem(item)}
+                        onClick={() => openDrawer(item.key)}
                       >
                         <td className="px-4 py-3 font-mono text-xs text-primary font-bold">{item.key}</td>
                         <td className="px-4 py-3 text-foreground max-w-[220px]">
@@ -823,7 +840,7 @@ export default function SuperAdminTracker() {
         {selectedItem && (
           <ItemDrawer
             item={selectedItem}
-            onClose={() => setSelectedItem(null)}
+            onClose={closeDrawer}
             onSave={handleSaveItem}
             onNeedsGithub={handleNeedsGithub}
             itemMap={itemMap}
