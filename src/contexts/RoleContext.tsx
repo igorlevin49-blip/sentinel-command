@@ -36,7 +36,7 @@ const IS_DEV = import.meta.env.DEV;
 
 export function RoleProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const [dbRole, setDbRole] = useState<UserRole>('dispatcher');
+  const [dbRole, setDbRole] = useState<UserRole | null>(null);
   const [viewAsRole, setViewAsRoleState] = useState<UserRole | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
   const [roleError, setRoleError] = useState<string | null>(null);
