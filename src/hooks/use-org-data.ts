@@ -150,7 +150,7 @@ export function useOrgIncident(incidentId: string | undefined) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('incidents')
-        .select('*, objects(name), posts(name), personnel!assigned_to_personnel_id(full_name)')
+        .select('*, objects(name), personnel!assigned_to_personnel_id(full_name)')
         .eq('id', incidentId!)
         .maybeSingle();
       if (error) throw error;

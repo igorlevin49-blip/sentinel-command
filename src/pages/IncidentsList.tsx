@@ -76,7 +76,6 @@ export default function IncidentsListPage() {
     const { data: inc, error: err } = await supabase.from('incidents').insert({
       org_id: orgId,
       object_id: form.object_id,
-      post_id: form.post_id || null,
       title: form.title.trim(),
       description: form.description.trim() || null,
       severity: form.severity as any,

@@ -72,7 +72,11 @@ export function RoleProvider({ children }: { children: ReactNode }) {
       }
 
       if (!data) {
-        setRoleError('no_role');
+        // No org membership — not fatal; user may have platform-only access.
+        // Set a sentinel role; PlatformGate handles platform access separately.
+        setDbRole(null as any);
+        setRoleError(null);
+        setUserName(user!.email ?? '');
         setRoleLoading(false);
         return;
       }

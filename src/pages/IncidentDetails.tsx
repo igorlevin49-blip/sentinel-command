@@ -254,10 +254,7 @@ export default function IncidentDetails() {
                 <p className="text-xs text-muted-foreground mb-0.5">Объект</p>
                 <p className="text-sm font-medium">{(incident as any).objects?.name ?? '—'}</p>
               </div>
-              <div>
-                <p className="text-xs text-muted-foreground mb-0.5">Пост</p>
-                <p className="text-sm font-medium">{(incident as any).posts?.name ?? '—'}</p>
-              </div>
+              {/* Post info removed — incidents table has no post_id FK */}
               <div>
                 <p className="text-xs text-muted-foreground mb-0.5">Назначен</p>
                 <p className="text-sm font-medium">{(incident as any).personnel?.full_name ?? '—'}</p>

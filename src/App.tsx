@@ -162,6 +162,7 @@ function PlatformRoutes() {
 
 function AppRoutes() {
   const { role } = useRole();
+  const { isPlatformStaff } = usePlatformAuth();
 
   return (
     <Routes>
