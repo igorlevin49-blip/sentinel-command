@@ -128,7 +128,7 @@ export function useOrgIncidents(filters: IncidentFilters = {}) {
     queryFn: async () => {
       let q = supabase
         .from('incidents')
-        .select('*, objects(name), posts(name), personnel!assigned_to_personnel_id(full_name)')
+        .select('*, objects(name), personnel!assigned_to_personnel_id(full_name)')
         .eq('org_id', orgId!)
         .order('created_at', { ascending: false });
       if (filters.objectId) q = q.eq('object_id', filters.objectId);
