@@ -70,7 +70,7 @@ const TIMESTAMP_FOR_STATUS: Partial<Record<IncidentStatus, string[]>> = {
 const transitionLabels: Record<IncidentStatus, string> = {
   created: 'Создать', // unused as target
   accepted: 'Принять',
-  in_progress: 'Взять в работу',
+  in_progress: 'В пути',
   resolved: 'Решить',
   closed: 'Закрыть',
 };
