@@ -164,6 +164,7 @@ function PlatformRoutes() {
           <Route path="dispatch" element={<DispatchRules />} />
           <Route path="escalations" element={<EscalationRules />} />
           <Route path="incidents" element={<PlatformIncidents />} />
+          <Route path="uat" element={<PlatformUAT />} />
           <Route path="*" element={<Navigate to="roles" replace />} />
         </Routes>
       </PlatformGate>
