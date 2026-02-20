@@ -4,7 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ErrorDisplay } from '@/components/ui/error-display';
-import { useOrgIncidents, useOrgObjects, useOrgPersonnel, useOrgPosts } from '@/hooks/use-org-data';
+import { useOrgIncidents, useOrgObjects, useOrgPersonnel } from '@/hooks/use-org-data';
 import { useActiveOrg } from '@/contexts/ActiveOrgContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
@@ -28,7 +28,6 @@ const typeLabels: Record<string, string> = {
 
 interface IncidentForm {
   object_id: string;
-  post_id: string;
   title: string;
   description: string;
   severity: string;
@@ -36,7 +35,7 @@ interface IncidentForm {
 }
 
 const defaultForm: IncidentForm = {
-  object_id: '', post_id: '', title: '', description: '', severity: 'medium', type: 'alarm',
+  object_id: '', title: '', description: '', severity: 'medium', type: 'alarm',
 };
 
 export default function IncidentsListPage() {
@@ -58,8 +57,6 @@ export default function IncidentsListPage() {
     type: filters.type || undefined,
   });
   const { data: objects } = useOrgObjects();
-  const [selectedObj, setSelectedObj] = useState('');
-  const { data: posts } = useOrgPosts(selectedObj || undefined);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<IncidentForm>(defaultForm);
   const [saving, setSaving] = useState(false);
@@ -171,24 +168,13 @@ export default function IncidentsListPage() {
                 <select
                   className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm focus:border-primary focus:outline-none"
                   value={form.object_id}
-                  onChange={e => { setSelectedObj(e.target.value); setForm(f => ({ ...f, object_id: e.target.value, post_id: '' })); }}
+                  onChange={e => setForm(f => ({ ...f, object_id: e.target.value }))}
                 >
                   <option value="">— выберите объект —</option>
                   {(objects ?? []).map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Пост (необязательно)</label>
-                <select
-                  className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm focus:border-primary focus:outline-none"
-                  value={form.post_id}
-                  onChange={e => setForm(f => ({ ...f, post_id: e.target.value }))}
-                  disabled={!form.object_id}
-                >
-                  <option value="">— не указан —</option>
-                  {(posts ?? []).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                </select>
-              </div>
+              {/* Post selector removed — incidents table has no post_id FK */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-medium mb-1">Тип</label>

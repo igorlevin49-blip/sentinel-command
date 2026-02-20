@@ -86,7 +86,7 @@ export default function IncidentDetails() {
   const [transitioning, setTransitioning] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const allowedTransitions = incident
+  const allowedTransitions = incident && role
     ? (TRANSITIONS[role]?.[incident.status] ?? [])
     : [];
 
