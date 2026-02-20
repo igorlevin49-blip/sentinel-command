@@ -137,8 +137,11 @@ export default function PlatformIncidents() {
     setActionLoading(true);
     setActionError(null);
     const update: Record<string, string> = { status: nextStatus };
-    const tsField = TIMESTAMP_FOR_STATUS[nextStatus];
-    if (tsField) update[tsField] = new Date().toISOString();
+    const tsFields = TIMESTAMP_FOR_STATUS[nextStatus];
+    if (tsFields) {
+      const now = new Date().toISOString();
+      tsFields.forEach((f) => { update[f] = now; });
+    }
 
     const { error: err } = await supabase.from('incidents').update(update).eq('id', inc.id);
     if (err) {
