@@ -171,7 +171,7 @@ function AppRoutes() {
       <Route path="/register" element={<PublicOnly><Register /></PublicOnly>} />
 
       {/* Dashboard redirect */}
-      <Route path="/dashboard" element={<RequireAuth><RoleGate><DashboardRedirect /></RoleGate></RequireAuth>} />
+      <Route path="/dashboard" element={<RequireAuth><DashboardRedirect /></RequireAuth>} />
 
       {/* ── Platform cabinet (source of truth: platform_roles) ── */}
       <Route path="/platform/*" element={<PlatformRoutes />} />
