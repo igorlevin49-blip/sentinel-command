@@ -170,8 +170,8 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
           </>
         )}
 
-      {/* Org / role nav — hide if user has no org role */}
-        {role && navItems.map((item) => {
+      {/* Org / role nav — hide on /platform pages and when user has no org role */}
+        {role && !isOnPlatform && navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const isTrackerItem = item.path === '/super-admin/tracker';
           return (
