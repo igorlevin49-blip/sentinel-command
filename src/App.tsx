@@ -175,18 +175,18 @@ function AppRoutes() {
       {/* ── Platform cabinet (source of truth: platform_roles) ── */}
       <Route path="/platform/*" element={<PlatformRoutes />} />
 
-      {/* Super Admin sub-pages */}
-      {role === 'super_admin' && (
+      {/* Super Admin sub-pages — accessible to org super_admin OR platform staff */}
+      {(role === 'super_admin' || isPlatformStaff) && (
         <>
-          <Route path="/super-admin" element={<RequireAuth><RoleGate><SuperAdminDashboard /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/tracker" element={<RequireAuth><RoleGate><SuperAdminTracker /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/orgs" element={<RequireAuth><RoleGate><SuperAdminOrgs /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/users" element={<RequireAuth><RoleGate><SuperAdminUsers /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/objects" element={<RequireAuth><RoleGate><SuperAdminObjects /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/incidents" element={<RequireAuth><RoleGate><SuperAdminIncidents /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/analytics" element={<RequireAuth><RoleGate><SuperAdminAnalytics /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/audit" element={<RequireAuth><RoleGate><SuperAdminAudit /></RoleGate></RequireAuth>} />
-          <Route path="/super-admin/roles" element={<RequireAuth><RoleGate><SuperAdminRoles /></RoleGate></RequireAuth>} />
+          <Route path="/super-admin" element={<RequireAuth><SuperAdminDashboard /></RequireAuth>} />
+          <Route path="/super-admin/tracker" element={<RequireAuth><SuperAdminTracker /></RequireAuth>} />
+          <Route path="/super-admin/orgs" element={<RequireAuth><SuperAdminOrgs /></RequireAuth>} />
+          <Route path="/super-admin/users" element={<RequireAuth><SuperAdminUsers /></RequireAuth>} />
+          <Route path="/super-admin/objects" element={<RequireAuth><SuperAdminObjects /></RequireAuth>} />
+          <Route path="/super-admin/incidents" element={<RequireAuth><SuperAdminIncidents /></RequireAuth>} />
+          <Route path="/super-admin/analytics" element={<RequireAuth><SuperAdminAnalytics /></RequireAuth>} />
+          <Route path="/super-admin/audit" element={<RequireAuth><SuperAdminAudit /></RequireAuth>} />
+          <Route path="/super-admin/roles" element={<RequireAuth><SuperAdminRoles /></RequireAuth>} />
         </>
       )}
 
